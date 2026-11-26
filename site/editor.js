@@ -870,48 +870,50 @@ if (!openEntry) {
 }
 
 
-// Cinematic hologram navigation layer — lightweight DOM/CSS, no external 3D engine.
+// Hero-grade holographic command deck. Original superhero-tech aesthetic, not character replicas.
 (() => {
   const stage = document.querySelector(".stage");
-  if (!stage || document.querySelector(".holo-nav")) return;
-  const nav = document.createElement("nav");
-  nav.className = "holo-nav";
-  nav.setAttribute("aria-label", "Holographic portfolio navigation");
-  const heading = document.createElement("div");
-  heading.className = "holo-heading";
-  heading.innerHTML = '<span class="holo-pulse"></span><span>HOLO INTERFACE</span><small>SELECT DESTINATION</small>';
-  nav.append(heading);
-  const destinations = [
-    { id: "about", title: "IDENTITY", sub: "Who am I", mark: "01" },
-    { id: "projects", title: "PROJECT ARCHIVE", sub: "Explore my work", mark: "02" },
-    { id: "stack", title: "NEURAL STACK", sub: "Skills & technology", mark: "03" },
-    { id: "themes", title: "TIME GATE", sub: "Enter another dimension", mark: "04" }
-  ];
-  destinations.forEach((destination, index) => {
-    let entry = entries.find((item) => item.id === destination.id || (destination.id === "projects" && item.kind === "project"));
-    if (!entry) return;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "holo-destination";
-    button.innerHTML = '<span class="holo-number">' + destination.mark + '</span><span class="holo-copy"><b>' + destination.title + '</b><small>' + destination.sub + '</small></span><span class="holo-arrow">↗</span>';
+  if (!stage || document.querySelector(".hero-deck")) return;
+  const deck = document.createElement("section");
+  deck.className = "hero-deck";
+  deck.setAttribute("aria-label", "Futuristic portfolio command deck");
+  deck.innerHTML = `
+    <div class="deck-top"><span class="deck-live"><i></i> STARK-CLASS INTERFACE</span><span class="deck-coordinate">DD / 2026</span></div>
+    <div class="deck-title">SELECT YOUR <b>MISSION</b></div>
+    <div class="hero-orbits" aria-hidden="true">
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+      <div class="hero-core"><span class="core-light"></span><small>AI</small></div>
+      <span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span><span class="orbit-dot dot-three"></span>
+    </div>
+    <div class="hero-modules">
+      <button class="hero-module arc-module" type="button" data-dest="about"><span class="module-art arc-art"><i></i></span><span class="module-label">01 / ARC CORE</span><b>IDENTITY</b><small>Meet the operator</small></button>
+      <button class="hero-module web-module" type="button" data-dest="projects"><span class="module-art web-art"><i></i></span><span class="module-label">02 / WEB MATRIX</span><b>PROJECTS</b><small>Explore the archive</small></button>
+      <button class="hero-module gamma-module" type="button" data-dest="stack"><span class="module-art gamma-art"><i></i></span><span class="module-label">03 / GAMMA CORE</span><b>TECH STACK</b><small>Skills & systems</small></button>
+    </div>
+    <div class="deck-foot"><span>HOLOGRAPHIC NAVIGATION</span><span>CLICK A MODULE TO INITIATE JUMP <b>↗</b></span></div>`;
+  stage.append(deck);
+
+  const chooseEntry = (dest) => {
+    if (dest === "about") return entries.find(e => e.kind === "about");
+    if (dest === "projects") return entries.find(e => e.kind === "project") || entries.find(e => e.kind === "work") || entries[0];
+    if (dest === "stack") return entries.find(e => e.kind === "stack") || entries.find(e => e.kind === "work") || entries[0];
+    return entries[0];
+  };
+  deck.querySelectorAll(".hero-module").forEach((button) => {
     button.addEventListener("click", () => {
-      const target = destination.id === "projects" ? entries.find((item) => item.kind === "project") : entry;
+      const dest = button.dataset.dest;
+      const target = chooseEntry(dest);
+      if (!target) return;
       const gate = document.createElement("div");
-      gate.className = "holo-gate is-opening";
-      gate.innerHTML = '<div class="gate-ring"></div><div class="gate-core"></div><p>JUMPING THROUGH TIME</p><small>DESTINATION: ' + destination.title + '</small>';
+      gate.className = "hero-jump";
+      gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>INITIATING QUANTUM TRANSIT</p><small>DESTINATION LOCKED // ' + button.querySelector("b").textContent + '</small>';
       document.body.append(gate);
-      button.classList.add("is-selected");
+      button.classList.add("module-active");
       window.setTimeout(() => {
         open(target);
-        document.body.classList.add("holo-arrived");
-        window.setTimeout(() => {
-          gate.remove();
-          document.body.classList.remove("holo-arrived");
-          button.classList.remove("is-selected");
-        }, 500);
-      }, 720);
+        gate.classList.add("jump-exit");
+        window.setTimeout(() => { gate.remove(); button.classList.remove("module-active"); }, 550);
+      }, reduced.matches ? 0 : 850);
     });
-    nav.append(button);
   });
-  stage.append(nav);
 })();
