@@ -932,7 +932,7 @@ if (!openEntry) {
     voiceEngine.speak(utterance);
   };
   const moduleSpeech = {
-    about: "Identity protocol activated. I am Devanshu Dwivedi, a Computer Science graduate focused on data analytics and building skills toward data engineering. I am open to opportunities across India.",
+    about: "Identity protocol activated. I am Devanshu Dwivedi, a Computer Science graduate focused on Data Analytics. I am open to opportunities across India.",
     projects: "Projects archive activated. Explore my analytics work, including sales and customer analytics, IT spend and asset utilization, Superstore sales insights, and hotel booking demand analysis. Each project links to its source repository.",
     stack: "Technology systems online. My practical foundations are Excel, SQL fundamentals, and Power BI. I am actively developing skills in Python, statistics, data cleaning, PySpark, and Amazon Web Services."
   };
