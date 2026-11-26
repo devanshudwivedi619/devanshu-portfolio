@@ -878,7 +878,7 @@ if (!openEntry) {
   deck.className = "hero-deck";
   deck.setAttribute("aria-label", "Futuristic portfolio command deck");
   deck.innerHTML = `
-    <div class="deck-top"><span class="deck-live"><i></i> STARK-CLASS INTERFACE</span><span class="deck-coordinate">DD / 2026</span></div>
+    <div class="deck-top"><span class="deck-live"><i></i> STARK-CLASS INTERFACE</span><span class="deck-coordinate">DD / 2026</span><button class="deck-voice-toggle" type="button" aria-pressed="true">VOICE ON</button></div>
     <div class="deck-title">SELECT YOUR <b>MISSION</b></div>
     <div class="hero-orbits" aria-hidden="true">
       <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
@@ -893,6 +893,67 @@ if (!openEntry) {
     <div class="deck-foot"><span>HOLOGRAPHIC NAVIGATION</span><span>CLICK A MODULE TO INITIATE JUMP <b>↗</b></span></div>`;
   stage.append(deck);
 
+  const voiceEngine = window.speechSynthesis;
+  let voiceEnabled = true;
+  let voiceList = [];
+  let preferredVoice = null;
+  const voiceToggle = deck.querySelector(".deck-voice-toggle");
+  const coreOrb = deck.querySelector(".hero-core");
+  const refreshVoices = () => {
+    voiceList = voiceEngine ? voiceEngine.getVoices() : [];
+    preferredVoice = voiceList.find(v => /^en-IN$/i.test(v.lang))
+      || voiceList.find(v => /^en-GB$/i.test(v.lang))
+      || voiceList.find(v => /^en-US$/i.test(v.lang))
+      || voiceList.find(v => /^en/i.test(v.lang)) || null;
+  };
+  if (voiceEngine) {
+    refreshVoices();
+    voiceEngine.addEventListener?.("voiceschanged", refreshVoices);
+  } else {
+    voiceEnabled = false;
+    voiceToggle.textContent = "VOICE N/A";
+    voiceToggle.disabled = true;
+  }
+  coreOrb.setAttribute("role", "button");
+  coreOrb.setAttribute("tabindex", "0");
+  coreOrb.setAttribute("aria-label", "Activate the portfolio voice assistant");
+  const sayWithDeck = (message) => {
+    if (!voiceEnabled || !voiceEngine) return;
+    voiceEngine.cancel();
+    refreshVoices();
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.rate = 0.9;
+    utterance.pitch = 0.78;
+    utterance.volume = 1;
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.onstart = () => coreOrb.classList.add("is-speaking");
+    utterance.onend = () => coreOrb.classList.remove("is-speaking");
+    utterance.onerror = () => coreOrb.classList.remove("is-speaking");
+    voiceEngine.speak(utterance);
+  };
+  const moduleSpeech = {
+    about: "Identity protocol activated. I am Devanshu Dwivedi, a Computer Science graduate focused on data analytics and building skills toward data engineering. I am open to opportunities across India.",
+    projects: "Projects archive activated. Explore my analytics work, including sales and customer analytics, IT spend and asset utilization, Superstore sales insights, and hotel booking demand analysis. Each project links to its source repository.",
+    stack: "Technology systems online. My practical foundations are Excel, SQL fundamentals, and Power BI. I am actively developing skills in Python, statistics, data cleaning, PySpark, and Amazon Web Services."
+  };
+  const greeting = () => sayWithDeck("Good day. All systems are online. Welcome to Devanshu Dwivedi's portfolio. Select a mission to explore identity, projects, or technology stack.");
+  coreOrb.addEventListener("click", greeting);
+  coreOrb.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      greeting();
+    }
+  });
+  voiceToggle.addEventListener("click", () => {
+    voiceEnabled = !voiceEnabled;
+    voiceToggle.textContent = voiceEnabled ? "VOICE ON" : "VOICE OFF";
+    voiceToggle.setAttribute("aria-pressed", String(voiceEnabled));
+    if (!voiceEnabled) {
+      voiceEngine?.cancel();
+      coreOrb.classList.remove("is-speaking");
+    }
+  });
+
   const chooseEntry = (dest) => {
     if (dest === "about") return entries.find(e => e.kind === "about");
     if (dest === "projects") return entries.find(e => e.kind === "project") || entries.find(e => e.kind === "work") || entries[0];
@@ -904,6 +965,7 @@ if (!openEntry) {
       const dest = button.dataset.dest;
       const target = chooseEntry(dest);
       if (!target) return;
+      sayWithDeck(moduleSpeech[dest] || "Mission selected. Initiating navigation.");
       const gate = document.createElement("div");
       gate.className = "hero-jump";
       gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>INITIATING QUANTUM TRANSIT</p><small>DESTINATION LOCKED // ' + button.querySelector("b").textContent + '</small>';
