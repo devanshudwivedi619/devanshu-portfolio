@@ -1,12 +1,12 @@
 {
   "identity": {
-    "name": "Alex Rivera",
-    "barTitle": "ALEX RIVERA",
-    "terminalUser": "alex",
-    "domain": "alexrivera.dev",
-    "tagline": "systems, developer tools, open source.",
-    "github": "alexrivera",
-    "storagePrefix": "portfolio"
+    "name": "Devanshu Dwivedi",
+    "barTitle": "DEVANSHU DWIVEDI",
+    "terminalUser": "devanshu",
+    "domain": "",
+    "tagline": "data engineering, analytics, and cloud.",
+    "github": "devanshudwivedi619",
+    "storagePrefix": "devanshu-portfolio"
   },
   "about": {
     "bio": "Systems and full-stack engineer building developer tools, distributed storage engines, and open-source software.",
