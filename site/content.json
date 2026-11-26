@@ -1,29 +1,28 @@
 {
- "owner": "alexrivera",
- "fetchedAt": "2026-11-25T09:11:39.315Z",
+ "owner": "devanshudwivedi619",
+ "fetchedAt": "2026-11-26T00:00:00.000Z",
  "about": {
-  "repo": "alexrivera",
+  "repo": "devanshudwivedi619",
   "lines": [
-   "# Alex Rivera",
+   "# Devanshu Dwivedi",
    "",
-   "Systems and full-stack engineer building developer tools, distributed storage engines, and open-source software.",
+   "Computer Science graduate interested in data analytics and data engineering. I work with Excel, SQL fundamentals, and Power BI, and am currently learning Python, PySpark, and AWS through hands-on practice and projects.",
    "",
-   "San Francisco · Open Source",
+   "India · Open to opportunities",
    "",
-   "[GitHub](https://github.com/alexrivera)",
-   "[LinkedIn](https://www.linkedin.com/in/alexrivera)",
-   "[X / Twitter](https://x.com/alexrivera)",
-   "[Blog](https://alexrivera.dev/blog)"
+   "[Email](mailto:devanshudwivedi@gmail.com)",
+   "[GitHub](https://github.com/devanshudwivedi619)",
+   "[LinkedIn](https://www.linkedin.com/in/devanshu-dwivedi-403783371/)"
   ]
  },
  "projects": [
   {
-   "repo": "pulsedb",
-   "url": "https://github.com/alexrivera/pulsedb",
-   "description": "An embedded time-series storage engine written in Rust with sub-millisecond range queries and vectorized compression.",
-   "tag": "Database · Rust",
+   "repo": "sales-and-customer-analytics-dashboard",
+   "url": "https://github.com/devanshudwivedi619/Sales-Customer-Analytics-Dashboard",
+   "description": "An interactive sales and customer report built with Excel and Power BI to analyze revenue, profit, orders, payment methods, sales channels, delivery status, and geographic performance.",
+   "tag": "Business Intelligence · Power BI",
    "stars": null,
-   "language": "Rust",
+   "language": "Power BI",
    "pushed": null,
    "forks": null,
    "watchers": null,
@@ -34,130 +33,119 @@
    "commits": null,
    "files": null,
    "counts": {},
-   "github": "https://github.com/alexrivera/pulsedb",
+   "github": "https://github.com/devanshudwivedi619/Sales-Customer-Analytics-Dashboard",
    "stack": [
-    "Rust",
-    "SQLite",
-    "WebAssembly",
-    "TypeScript"
-   ],
-   "images": [
-    {
-     "file": "shots/project-1.svg",
-     "source": "shots/project-1.svg",
-     "alt": "PulseDB screenshot 1",
-     "xray": false
-    }
-   ],
-   "lines": [
-    "# PulseDB",
-    "",
-    "\u0001IMG0\u0001",
-    "",
-    "### An embedded time-series storage engine written in Rust with sub-millisecond range queries and vectorized compression.",
-    "",
-    "PulseDB is a lightweight embedded time-series database designed for edge",
-    "telemetry and local developer metrics. It features gorilla-style delta",
-    "encoding, memory-mapped segment files, and a zero-allocation query iterator.",
-    "",
-    "Built with Rust · SQLite · WebAssembly · TypeScript",
-    "",
-    "[Visit](https://github.com/alexrivera/pulsedb)"
-   ]
-  },
-  {
-   "repo": "termflow",
-   "url": "https://github.com/alexrivera/termflow",
-   "description": "A fast terminal multiplexer and task runner with live dependency graphs and structured log filtering.",
-   "tag": "CLI · Go",
-   "stars": null,
-   "language": "Go",
-   "pushed": null,
-   "forks": null,
-   "watchers": null,
-   "issues": null,
-   "license": null,
-   "created": null,
-   "branch": "main",
-   "commits": null,
-   "files": null,
-   "counts": {},
-   "github": "https://github.com/alexrivera/termflow",
-   "stack": [
-    "Go",
-    "Terminal",
-    "Docker",
-    "Linux"
-   ],
-   "images": [
-    {
-     "file": "shots/project-2.svg",
-     "source": "shots/project-2.svg",
-     "alt": "TermFlow screenshot 1",
-     "xray": false
-    }
-   ],
-   "lines": [
-    "# TermFlow",
-    "",
-    "\u0001IMG0\u0001",
-    "",
-    "### A fast terminal multiplexer and task runner with live dependency graphs and structured log filtering.",
-    "",
-    "TermFlow orchestrates local microservices and build pipelines from a single",
-    "declarative manifest. It streams colorized output, detects port conflicts",
-    "automatically, and exports execution timelines.",
-    "",
-    "Built with Go · Terminal · Docker · Linux",
-    "",
-    "[Visit](https://github.com/alexrivera/termflow)"
-   ]
-  },
-  {
-   "repo": "tracekit",
-   "url": "https://github.com/alexrivera/tracekit",
-   "description": "Zero-overhead OpenTelemetry trace viewer that runs entirely in the browser from JSONL trace dumps.",
-   "tag": "Observability · TypeScript",
-   "stars": null,
-   "language": "TypeScript",
-   "pushed": null,
-   "forks": null,
-   "watchers": null,
-   "issues": null,
-   "license": null,
-   "created": null,
-   "branch": "main",
-   "commits": null,
-   "files": null,
-   "counts": {},
-   "github": "https://github.com/alexrivera/tracekit",
-   "stack": [
-    "TypeScript",
-    "React",
-    "Canvas",
-    "OpenTelemetry"
+    "Power BI",
+    "Excel",
+    "Power Query",
+    "DAX",
+    "Data Modeling"
    ],
    "images": [],
    "lines": [
-    "# TraceKit",
+    "# Sales & Customer Analytics Dashboard",
     "",
     "",
-    "### Zero-overhead OpenTelemetry trace viewer that runs entirely in the browser from JSONL trace dumps.",
+    "### An interactive sales and customer report built with Excel and Power BI to analyze revenue, profit, orders, payment methods, sales channels, delivery status, and geographic performance.",
     "",
-    "TraceKit lets engineers inspect distributed traces locally without spinning",
-    "up heavy observability backends. Drop a trace file into the browser and",
-    "inspect flamegraphs, critical paths, and span attributes.",
+    "Prepared and structured source data in Excel, then used Power Query, data",
+    "modeling, and DAX in Power BI. The report includes KPI cards and interactive",
+    "visuals for products, order status, payment methods, sales channels,",
+    "sub-categories, profit by category, and state-wise sales. The repository",
+    "documents that the dataset is synthetic/sample data.",
     "",
-    "Built with TypeScript · React · Canvas · OpenTelemetry",
+    "Built with Power BI · Excel · Power Query · DAX · Data Modeling",
     "",
-    "[Visit](https://github.com/alexrivera/tracekit)"
+    "[Visit](https://github.com/devanshudwivedi619/Sales-Customer-Analytics-Dashboard)"
    ]
   },
   {
-   "repo": "schemasync",
-   "url": "https://github.com/alexrivera/schemasync",
-   "description": "Automated database migration validator that catches breaking schema changes and missing indexes in CI.",
-   "tag": "Tooling · Python",
+   "repo": "it-spend-and-asset-utilization-dashboard",
+   "url": "https://github.com/devanshudwivedi619/IT-Spend-Asset-Utilization-PowerBI-Dashboard",
+   "description": "A dashboard exploring IT spend, software license usage, unused licenses, vendor costs, department budgets, and contract renewal status.",
+   "tag": "IT Analytics · Power BI",
+   "stars": null,
+   "language": "Power BI",
+   "pushed": null,
+   "forks": null,
+   "watchers": null,
+   "issues": null,
+   "license": null,
+   "created": null,
+   "branch": "main",
+   "commits": null,
+   "files": null,
+   "counts": {},
+   "github": "https://github.com/devanshudwivedi619/IT-Spend-Asset-Utilization-PowerBI-Dashboard",
+   "stack": [
+    "Power BI",
+    "DAX",
+    "Power Query",
+    "Data Visualization"
+   ],
+   "images": [],
+   "lines": [
+    "# IT Spend & Asset Utilization Dashboard",
+    "",
+    "",
+    "### A dashboard exploring IT spend, software license usage, unused licenses, vendor costs, department budgets, and contract renewal status.",
+    "",
+    "The repository describes a 300-record sample dataset and reports ₹5.51 crore",
+    "in total IT spend, 9,025 purchased licenses, 69.42% utilization, and 2,778",
+    "unused licenses. Built using Power BI, DAX, and Power Query. Figures are",
+    "from the sample project dataset, not a real company engagement.",
+    "",
+    "Built with Power BI · DAX · Power Query · Data Visualization",
+    "",
+    "[Visit](https://github.com/devanshudwivedi619/IT-Spend-Asset-Utilization-PowerBI-Dashboard)"
+   ]
+  },
+  {
+   "repo": "superstore-sales-and-profit-insights",
+   "url": "https://github.com/devanshudwivedi619/Superstore-Sales-Profit-Insights-Dashboard-",
+   "description": "An interactive analysis of retail orders, sales, profit, customer segments, product categories, order priority, and regional performance.",
+   "tag": "Retail Analytics · Power BI",
+   "stars": null,
+   "language": "Power BI",
+   "pushed": null,
+   "forks": null,
+   "watchers": null,
+   "issues": null,
+   "license": null,
+   "created": null,
+   "branch": "main",
+   "commits": null,
+   "files": null,
+   "counts": {},
+   "github": "https://github.com/devanshudwivedi619/Superstore-Sales-Profit-Insights-Dashboard-",
+   "stack": [
+    "Power BI",
+    "Excel",
+    "Power Query",
+    "DAX"
+   ],
+   "images": [],
+   "lines": [
+    "# Superstore Sales & Profit Insights",
+    "",
+    "",
+    "### An interactive analysis of retail orders, sales, profit, customer segments, product categories, order priority, and regional performance.",
+    "",
+    "The project README describes analysis of 9,426 orders from 2010–2013, with",
+    "reported totals of $8.95M sales and $1.31M profit. It includes KPI cards,",
+    "sales and profit trends, category profitability, customer segment analysis,",
+    "order priority, geographic visuals, and interactive filters.",
+    "",
+    "Built with Power BI · Excel · Power Query · DAX",
+    "",
+    "[Visit](https://github.com/devanshudwivedi619/Superstore-Sales-Profit-Insights-Dashboard-)"
+   ]
+  },
+  {
+   "repo": "hotel-booking-demand-analysis",
+   "url": "https://github.com/devanshudwivedi619/hotel-booking-demand-analysis",
+   "description": "An exploratory analysis of hotel booking patterns, cancellations, seasonal arrivals, pricing, market segments, and guest behavior.",
+   "tag": "Exploratory Data Analysis · Python",
    "stars": null,
    "language": "Python",
    "pushed": null,
@@ -170,35 +158,40 @@
    "commits": null,
    "files": null,
    "counts": {},
-   "github": "https://github.com/alexrivera/schemasync",
+   "github": "https://github.com/devanshudwivedi619/hotel-booking-demand-analysis",
    "stack": [
     "Python",
-    "PostgreSQL",
-    "GitHub Actions"
+    "Pandas",
+    "NumPy",
+    "Matplotlib",
+    "Seaborn",
+    "Jupyter"
    ],
    "images": [],
    "lines": [
-    "# SchemaSync",
+    "# Hotel Booking Demand Analysis",
     "",
     "",
-    "### Automated database migration validator that catches breaking schema changes and missing indexes in CI.",
+    "### An exploratory analysis of hotel booking patterns, cancellations, seasonal arrivals, pricing, market segments, and guest behavior.",
     "",
-    "SchemaSync parses SQL and ORM migrations in pull requests, simulates lock",
-    "contention against production table statistics, and posts actionable safety",
-    "reports.",
+    "The repository documents a Jupyter Notebook analysis of the Hotel Booking",
+    "Demand dataset. It covers data cleaning, duplicate handling, feature",
+    "creation, 14 visualization sections, findings, and business recommendations.",
+    "The README records 119,390 original rows and 87,396 rows after duplicate",
+    "removal.",
     "",
-    "Built with Python · PostgreSQL · GitHub Actions",
+    "Built with Python · Pandas · NumPy · Matplotlib · Seaborn · Jupyter",
     "",
-    "[Visit](https://github.com/alexrivera/schemasync)"
+    "[Visit](https://github.com/devanshudwivedi619/hotel-booking-demand-analysis)"
    ]
   },
   {
-   "repo": "minikv",
-   "url": "https://github.com/alexrivera/minikv",
-   "description": "A minimal Raft-backed key-value store built to explore consensus algorithms and deterministic simulation testing.",
-   "tag": "Storage · C",
+   "repo": "business-intelligence-sales-dashboard",
+   "url": "https://github.com/devanshudwivedi619/Business-Intelligence-Dashboard",
+   "description": "An interactive Excel dashboard analyzing 2018–2021 sales data with KPIs, category trends, regional performance, shipping costs, and order-source insights.",
+   "tag": "Business Reporting · Excel",
    "stars": null,
-   "language": "C",
+   "language": "Microsoft Excel",
    "pushed": null,
    "forks": null,
    "watchers": null,
@@ -209,34 +202,38 @@
    "commits": null,
    "files": null,
    "counts": {},
-   "github": "https://github.com/alexrivera/minikv",
+   "github": "https://github.com/devanshudwivedi619/Business-Intelligence-Dashboard",
    "stack": [
-    "C",
-    "Networking",
-    "Raft"
+    "Microsoft Excel",
+    "Pivot Tables",
+    "Pivot Charts",
+    "Slicers",
+    "Business Intelligence"
    ],
    "images": [],
    "lines": [
-    "# MiniKV",
+    "# Business Intelligence Sales Dashboard",
     "",
     "",
-    "### A minimal Raft-backed key-value store built to explore consensus algorithms and deterministic simulation testing.",
+    "### An interactive Excel dashboard analyzing 2018–2021 sales data with KPIs, category trends, regional performance, shipping costs, and order-source insights.",
     "",
-    "MiniKV implements leader election, log replication, and snapshot compaction",
-    "in under 2,000 lines of C with a deterministic network simulator.",
+    "The repository includes raw sales data and an Excel dashboard using Pivot",
+    "Tables, Pivot Charts, slicers, conditional formatting, and macros. The",
+    "README highlights category-wise, regional, shipping-cost, and platform",
+    "analysis.",
     "",
-    "Built with C · Networking · Raft",
+    "Built with Microsoft Excel · Pivot Tables · Pivot Charts · Slicers · Business Intelligence",
     "",
-    "[Visit](https://github.com/alexrivera/minikv)"
+    "[Visit](https://github.com/devanshudwivedi619/Business-Intelligence-Dashboard)"
    ]
   },
   {
-   "repo": "dotfiles",
-   "url": "https://github.com/alexrivera/dotfiles",
-   "description": "Modular Neovim, Fish shell, and tmux configuration tuned for fast keyboard-driven development.",
-   "tag": "Config · Neovim",
+   "repo": "stack-overflow-developer-survey-dashboard",
+   "url": "https://github.com/devanshudwivedi619/Stack-Overflow-Power-bi-Dashboard",
+   "description": "A dashboard exploring 49K+ developer survey responses across 178 countries, including demographics, education, employment, industries, and work preferences.",
+   "tag": "Workforce Analytics · Power BI",
    "stars": null,
-   "language": "Lua",
+   "language": "Power BI",
    "pushed": null,
    "forks": null,
    "watchers": null,
@@ -247,25 +244,28 @@
    "commits": null,
    "files": null,
    "counts": {},
-   "github": "https://github.com/alexrivera/dotfiles",
+   "github": "https://github.com/devanshudwivedi619/Stack-Overflow-Power-bi-Dashboard",
    "stack": [
-    "Lua",
-    "Neovim",
-    "Shell"
+    "Power BI",
+    "Power Query",
+    "DAX",
+    "Data Modeling"
    ],
    "images": [],
    "lines": [
-    "# Dotfiles",
+    "# Stack Overflow Developer Survey Dashboard",
     "",
     "",
-    "### Modular Neovim, Fish shell, and tmux configuration tuned for fast keyboard-driven development.",
+    "### A dashboard exploring 49K+ developer survey responses across 178 countries, including demographics, education, employment, industries, and work preferences.",
     "",
-    "Cross-platform terminal environment with custom Lua plugins, minimal LSP",
-    "setup, and synchronized color palettes.",
+    "The project README describes a Power BI report using the Stack Overflow",
+    "Developer Survey dataset, with analysis of developer demographics,",
+    "education, employment status, work modes, experience, industries, and",
+    "country-level patterns.",
     "",
-    "Built with Lua · Neovim · Shell",
+    "Built with Power BI · Power Query · DAX · Data Modeling",
     "",
-    "[Visit](https://github.com/alexrivera/dotfiles)"
+    "[Visit](https://github.com/devanshudwivedi619/Stack-Overflow-Power-bi-Dashboard)"
    ]
   }
  ],
@@ -602,85 +602,21 @@
   "crimson": "assets/themes/crimson.svg",
   "slate": "assets/themes/slate.svg"
  },
- "work": [
-  {
-   "when": "06/2024 – present",
-   "title": "Senior Systems Engineer",
-   "org": "CloudScale",
-   "where": "San Francisco · Hybrid",
-   "desc": "Leading the distributed query execution engine and low-latency telemetry pipeline in Rust and Go.",
-   "url": "https://example.com/cloudscale"
-  },
-  {
-   "when": "03/2022 – 05/2024",
-   "title": "Software Engineer",
-   "org": "DevFlow",
-   "where": "Remote",
-   "desc": "Built CLI developer tooling, local sandbox runtimes, and real-time build log streaming for 50k+ engineers.",
-   "url": "https://example.com/devflow"
-  },
-  {
-   "when": "01/2021 – present",
-   "title": "Core Maintainer",
-   "org": "OpenTrace",
-   "where": "Open source",
-   "desc": "Maintaining open-source distributed tracing SDKs and terminal visualization tools.",
-   "url": "https://github.com/alexrivera"
-  },
-  {
-   "when": "05/2020 – 08/2020",
-   "title": "Open Source Fellow",
-   "org": "SystemsLab",
-   "where": "Remote",
-   "desc": "Implemented zero-copy serialization primitives and benchmarked memory-mapped storage formats."
-  }
- ],
- "talks": [
-  {
-   "name": "Systems Conf",
-   "place": "San Francisco, USA",
-   "when": "Oct 2025",
-   "lat": 37.77,
-   "lon": -122.41,
-   "desc": "Building deterministic simulation harnesses for storage engines — catching race conditions before production.",
-   "url": "https://example.com/talk-1",
-   "photos": []
-  },
-  {
-   "name": "Open Source Summit",
-   "place": "London, UK",
-   "when": "May 2024",
-   "lat": 51.51,
-   "lon": -0.13,
-   "desc": "Designing zero-dependency developer tools that run fast on every platform.",
-   "url": "https://example.com/talk-2",
-   "photos": []
-  }
- ],
+ "work": [],
+ "talks": [],
  "links": [
   {
    "label": "Email",
-   "url": "mailto:hello@alexrivera.dev"
+   "url": "mailto:devanshudwivedi@gmail.com"
   },
   {
    "label": "GitHub",
-   "url": "https://github.com/alexrivera"
+   "url": "https://github.com/devanshudwivedi619"
   },
   {
    "label": "LinkedIn",
-   "url": "https://www.linkedin.com/in/alexrivera"
-  },
-  {
-   "label": "X / Twitter",
-   "url": "https://x.com/alexrivera"
-  },
-  {
-   "label": "Blog",
-   "url": "https://alexrivera.dev/blog"
+   "url": "https://www.linkedin.com/in/devanshu-dwivedi-403783371/"
   }
  ],
- "more": [
-  "minikv",
-  "dotfiles"
- ]
+ "more": []
 }
