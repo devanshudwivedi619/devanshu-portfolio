@@ -24,20 +24,24 @@ async function announce(){const kind=buffer?.dataset.kind||"",title=winbar?.text
 if(winbar&&buffer){const obs=new MutationObserver(announce);obs.observe(winbar,{childList:true,subtree:true,characterData:true});obs.observe(buffer,{attributes:true,attributeFilter:["data-kind"]});document.addEventListener("click",e=>{if(e.target.closest(".wheel-item"))setTimeout(announce,220)})}
 
 // Universal click-to-speak: announce the exact project/module/control the visitor activates.
-document.addEventListener("click", async (event) => {
+document.addEventListener("click", (event) => {
   if (!voiceOn || !("speechSynthesis" in window)) return;
   if (event.target.closest(".j-voice, .hero-core, .deck-voice-toggle, .j-mission-card, .hero-module")) return;
   const control = event.target.closest(".wheel-item, .archive-card, .archive-item, .project-card, .buffer a, .buffer button, .tabline, .den, .bar a, [data-project], [data-repo], [role='button'], a, button");
   if (!control) return;
-  const raw = (control.getAttribute("aria-label") || control.dataset.repo || control.dataset.project || control.dataset.label || control.textContent || control.title || "").replace(/\\s+/g, " ").trim();
-  if (!raw) return;
-  const data = await contentPromise;
-  const normalized = raw.toLowerCase().replace(/\\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-  const project = data?.projects?.find(p => {
-    const slug = p.repo.toLowerCase();
-    return normalized.includes(slug) || slug.includes(normalized);
-  });
-  const spokenName = project ? project.repo.replaceAll("-", " ") : raw.replaceAll("-", " ").replaceAll("/", " ");
-  const description = project?.description ? " " + project.description : "";
-  say("Selected " + spokenName + "." + description);
-}, true);
+  window.setTimeout(async () => {
+    if (!voiceOn) return;
+    const raw = (control.getAttribute("aria-label") || control.dataset.repo || control.dataset.project || control.dataset.label || control.textContent || control.title || "").replace(/\\s+/g, " ").trim();
+    if (!raw) return;
+    const data = await contentPromise;
+    const normalized = raw.toLowerCase().replace(/\\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    const project = data?.projects?.find(p => {
+      const slug = p.repo.toLowerCase();
+      return normalized.includes(slug) || slug.includes(normalized);
+    });
+    const spokenName = project ? project.repo.replaceAll("-", " ") : raw.replaceAll("-", " ").replaceAll("/", " ");
+    const description = project?.description ? " " + project.description : "";
+    lastTitle = winbar?.textContent?.trim() || lastTitle;
+    say("Selected " + spokenName + "." + description);
+  }, 40);
+});
