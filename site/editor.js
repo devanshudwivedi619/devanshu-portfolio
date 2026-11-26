@@ -146,8 +146,8 @@ const shipped = themes.filter((theme) => theme.included);
 const entries = [
   { id: "about", label: "whoami", kind: "about", tile: "about" },
   ...projectEntries.filter((entry) => !entry.parent),
-  { id: "work", label: "work/", kind: "work", tile: "work" },
-  { id: "talks", label: "talks/", kind: "talks", tile: "talks" },
+  ...(content.work?.length ? [{ id: "work", label: "work/", kind: "work", tile: "work" }] : []),
+  ...(content.talks?.length ? [{ id: "talks", label: "talks/", kind: "talks", tile: "talks" }] : []),
   ...(childrenOf("more").length ? [{ id: "more", label: "more/", kind: "more" }] : []),
   ...(stack ? [{ id: "stack", label: "stack/", kind: "stack", tile: "stack" }] : []),
   { id: "themes", label: "themes/", kind: "themes", tile: "themes" },
@@ -298,19 +298,11 @@ function room(used) {
 }
 
 function projectSpec(project) {
-  const { share, note } = starShare(project.stars || 0);
   const out = [
     { segments: [[project.repo, "md-h md-h1"]] },
     ...(project.description ? [{ segments: [project.description], className: "t-dim" }] : []),
-    { segments: [" "] },
-    fact("stars", project.stars, ["  ", ...gauge(share / 100, 17 + note.length), ...(note ? [[note, "t-dim"]] : [])]),
-    fact("forks", project.forks),
-    fact("watch", project.watchers),
-    fact("commits", project.commits),
-    ...Object.entries(project.counts || {}).map(([name, value]) => fact(name, value)),
-    fact("files", project.files),
-    { segments: [[pad("lang"), "t-key"], [project.language || "—", "md-code"], ...(project.license ? [["  " + project.license, "t-dim"]] : [])] },
-    { segments: [[pad("since"), "t-key"], project.created || "—", ["  pushed ", "t-dim"], project.pushed] },
+    { segments: [[pad("type"), "t-key"], [project.tag || "project", "md-code"]] },
+    { segments: [[pad("stack"), "t-key"], [(project.stack || []).join(" · ") || "—", "md-code"]] },
   ];
   const url = project.url;
   return {
@@ -319,7 +311,6 @@ function projectSpec(project) {
     shots: project.images.map((image, index) => ({ ...image, repo: project.repo, file: image.file, name: image.label || fileLabel(image, index) })),
     blocks: [
       { cmd: `fetch ${project.repo}`, out },
-      { cmd: "ls shots/", viewer: true },
       { cmd: `open ${url.replace(/^https:\/\//, "")}`, link: { text: url.replace(/^https:\/\//, ""), href: url } },
     ],
   };
@@ -529,11 +520,11 @@ function textOf(entry) {
 function barView(entry) {
   if (entry.kind === "project") {
     const p = entry.data;
-    return [["STARS", fmt(p.stars)], ["FORKS", fmt(p.forks ?? 0)], ["WATCH", fmt(p.watchers ?? 0)]];
+    return [["TYPE", p.tag || "PROJECT"], ["TOOLS", String(p.stack?.length || 0)]];
   }
   if (entry.kind === "themes") return [["THEMES", String(themes.length)], ["BUILT-IN", String(themes.filter((theme) => theme.included).length)]];
-  if (entry.kind === "work") return [["ROLES", String((content.work || []).filter((item) => item.kind !== "talk").length)], ["SINCE", "2021"], ["NOW", "ALBY"]];
-  if (entry.kind === "talks") return [["TALKS", String((content.talks || []).length)], ["COUNTRIES", "4"], ["SINCE", "2022"]];
+  if (entry.kind === "work") return [["ROLES", String((content.work || []).filter((item) => item.kind !== "talk").length)]];
+  if (entry.kind === "talks") return [["TALKS", String((content.talks || []).length)]];
   if (entry.kind === "more") return [["PROJECTS", String(childrenOf("more").length)]];
   if (entry.kind === "stack") return [["LANGS", String(stack.languages.length)], ["TOOLS", String(stack.tools.length)], ["AI", String(stack.ai?.length ?? 0)]];
   return [["PROJECTS", String(content.projects.length)], ["THEMES", String(themes.length)]];
