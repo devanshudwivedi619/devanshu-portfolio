@@ -337,34 +337,26 @@ function aboutSpec() {
 }
 
 function stackSpec() {
-  const cols = narrow.matches ? 2 : 3;
-  const unit = (l) => ` repo${l.repos === 1 ? "" : "s"}`;
-  const used = Math.max(0, ...stack.languages.map((l) => 3 + Math.max(11, l.name.length) + 4 + unit(l).length));
-  const lang = stack.languages.map((l) => ({ segments: [{ icon: l.icon, letter: l.name }, " ", [l.name.padEnd(11), "md-code"], ...gauge(l.repos / stack.repos, used), [String(l.repos).padStart(4), "md-num"], [unit(l), "t-dim"]] }));
-  const grid = (list, width) => {
-    const rows = [];
-    for (let k = 0; k < list.length; k += cols) {
-      rows.push({
-        segments: list.slice(k, k + cols).flatMap((tool, j) => [...(j ? ["  "] : []), { icon: tool.icon, letter: tool.name }, " ", [tool.name.padEnd(width)], [String(tool.repos ?? "").padStart(3), "md-num"]]),
-      });
-    }
-    return rows;
-  };
+  const groups = stack.skills || [];
   return {
-    cwd: "~",
+    cwd: "~/skills",
     branch: null,
     blocks: [
-      { cmd: "stack --languages", out: lang },
-      {
-        cmd: "stack --tools",
-        out: [...grid(stack.tools, 12), { segments: ["numbers: portfolio projects using each tool"], className: "t-dim" }],
-      },
-      ...(stack.ai?.length ? [{ cmd: "stack --ai-tools", out: [...grid(stack.ai, 12), { segments: ["listed by the owner"], className: "t-dim" }] }] : []),
-      { cmd: "stack --site", out: stack.site.map((tool) => ({ segments: [{ icon: tool.icon, letter: tool.name }, " ", [tool.name.padEnd(20)], [tool.via, "t-dim"]] })) },
+      { cmd: "skills --overview", out: [
+        { segments: ["Data Analyst skill map", "t-key"] },
+        { segments: ["Practical foundations: Excel · SQL fundamentals · Power BI", "t-dim"] },
+        { segments: ["Other topics are marked as learning / developing.", "t-dim"] },
+      ] },
+      ...groups.map((group) => ({
+        cmd: `skills --${group.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        out: [
+          { segments: [group.level, "t-dim"] },
+          ...group.items.map((item) => ({ segments: ["• ", item] })),
+        ],
+      })),
     ],
   };
 }
-
 
 function themesSpec() {
   const out = [{ segments: [[pad("palettes"), "t-key"], [String(themes.length), "md-num"], ["  click one to recolor the editor", "t-dim"]] }];
