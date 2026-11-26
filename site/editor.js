@@ -868,3 +868,50 @@ if (!openEntry) {
   const { item } = wheel.current();
   open(item.entry);
 }
+
+
+// Cinematic hologram navigation layer — lightweight DOM/CSS, no external 3D engine.
+(() => {
+  const stage = document.querySelector(".stage");
+  if (!stage || document.querySelector(".holo-nav")) return;
+  const nav = document.createElement("nav");
+  nav.className = "holo-nav";
+  nav.setAttribute("aria-label", "Holographic portfolio navigation");
+  const heading = document.createElement("div");
+  heading.className = "holo-heading";
+  heading.innerHTML = '<span class="holo-pulse"></span><span>HOLO INTERFACE</span><small>SELECT DESTINATION</small>';
+  nav.append(heading);
+  const destinations = [
+    { id: "about", title: "IDENTITY", sub: "Who am I", mark: "01" },
+    { id: "projects", title: "PROJECT ARCHIVE", sub: "Explore my work", mark: "02" },
+    { id: "stack", title: "NEURAL STACK", sub: "Skills & technology", mark: "03" },
+    { id: "themes", title: "TIME GATE", sub: "Enter another dimension", mark: "04" }
+  ];
+  destinations.forEach((destination, index) => {
+    let entry = entries.find((item) => item.id === destination.id || (destination.id === "projects" && item.kind === "project"));
+    if (!entry) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "holo-destination";
+    button.innerHTML = '<span class="holo-number">' + destination.mark + '</span><span class="holo-copy"><b>' + destination.title + '</b><small>' + destination.sub + '</small></span><span class="holo-arrow">↗</span>';
+    button.addEventListener("click", () => {
+      const target = destination.id === "projects" ? entries.find((item) => item.kind === "project") : entry;
+      const gate = document.createElement("div");
+      gate.className = "holo-gate is-opening";
+      gate.innerHTML = '<div class="gate-ring"></div><div class="gate-core"></div><p>JUMPING THROUGH TIME</p><small>DESTINATION: ' + destination.title + '</small>';
+      document.body.append(gate);
+      button.classList.add("is-selected");
+      window.setTimeout(() => {
+        open(target);
+        document.body.classList.add("holo-arrived");
+        window.setTimeout(() => {
+          gate.remove();
+          document.body.classList.remove("holo-arrived");
+          button.classList.remove("is-selected");
+        }, 500);
+      }, 720);
+    });
+    nav.append(button);
+  });
+  stage.append(nav);
+})();
