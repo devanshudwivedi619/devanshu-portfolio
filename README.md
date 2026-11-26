@@ -1,5 +1,11 @@
 # Devanshu Dwivedi — Data Analyst Portfolio
 
+## AETHER OS — Futuristic Technology Command Center
+
+Launch the standalone AETHER OS 2090 experience: [Open AETHER OS](https://devanshudwivedi619.github.io/devanshu-portfolio/aether-os/).
+
+Part 1 activates five live-coded visual modules. Modules 6–15 and City Mode are planned for later parts.
+
 Personal portfolio built with a Neovim-inspired interactive interface. It showcases selected analytics projects and an honest, structured map of my Data Analyst skills.
 
 ## About
