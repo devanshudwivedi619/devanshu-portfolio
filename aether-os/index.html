@@ -194,6 +194,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
 .security-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.security-cell{border:1px solid rgba(61,242,255,.2);background:rgba(9,20,42,.65);padding:16px;display:grid;gap:8px}.security-cell span,.security-cell small{font:9px monospace;letter-spacing:.1em;color:#91a9c4}.security-cell b{font:700 22px Orbitron,monospace;color:var(--mint)}.meter{height:5px;background:rgba(255,255,255,.1);overflow:hidden}.meter i{display:block;height:100%;background:var(--mint);transition:width .35s}.threat-meter i{background:var(--pink)}
 @media(max-width:650px){.city-shell,#cityCanvas{min-height:300px;height:300px}.breach-row{align-items:flex-start;flex-direction:column}.security-grid{grid-template-columns:1fr}}
 
+.system-footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:24px max(5vw,20px);border-top:1px solid rgba(61,242,255,.2);background:rgba(3,8,22,.88)}.system-footer>div{display:grid;gap:7px}.system-footer .section-kicker{font:9px monospace;letter-spacing:.14em;color:#7e9ab8}.system-footer strong{font:10px monospace;letter-spacing:.1em;color:#3df2ff}.system-footer .online-label{color:#7dffb2}
 </style>
 </head>
 <body>
@@ -280,6 +281,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
   <p class="section-copy">All fifteen technology sectors are online. Select any module to watch its source compile and dedicated visual simulation boot.</p>
   <div class="roadmap-grid" id="roadmapGrid"></div>
 </section>
+
+<section class="system-footer"><div><span class="section-kicker">AETHER OS v9.0</span><strong>ENCRYPTION: POST-QUANTUM ACTIVE</strong></div><div><span class="section-kicker">SESSION UPTIME</span><strong id="uptimeValue">00:00:00</strong></div><div><span class="section-kicker">SYSTEM STATUS</span><strong class="online-label">● ALL MODULES ONLINE</strong></div></section>
 </main>
 </div>
 <script>
@@ -779,6 +782,12 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
   const cityObserver=new IntersectionObserver(entries=>{cityVisible=entries[0].isIntersecting;if(cityVisible)startCity();else if(cityRAF){cancelAnimationFrame(cityRAF);cityRAF=0;}},{threshold:.05});cityObserver.observe($("#city-mode"));
   $("#breachButton").addEventListener("click",()=>{breachCount++;breachUntil=performance.now()+3800;$("#integrityValue").textContent="96%";$("#integrityFill").style.width="96%";$("#threatValue").textContent=String(breachCount).padStart(2,"0");$("#threatFill").style.width=Math.min(100,breachCount*18)+"%";$("#defenseValue").textContent="DEFENDING";$("#defenseLog").textContent="POST-QUANTUM SHIELD · SWARM INTERCEPT · ZK VERIFIED";$("#cityStatus").textContent="THREAT DETECTED · COUNTERMEASURES ACTIVE";if(cityVisible)startCity();setTimeout(()=>{$("#integrityValue").textContent="100%";$("#integrityFill").style.width="100%";$("#defenseValue").textContent="SECURED";$("#defenseLog").textContent="THREAT CONTAINED · VISUAL SIMULATION ONLY";$("#cityStatus").textContent="ALL SYSTEMS NOMINAL";},3900);});
   window.addEventListener("resize",()=>{if(cityVisible)startCity();});
+
+
+  /* SESSION UPTIME — relative to this page session, no storage used. */
+  const uptimeNode=$("#uptimeValue"),sessionStarted=Date.now();
+  function updateUptime(){const total=Math.floor((Date.now()-sessionStarted)/1000),hh=String(Math.floor(total/3600)).padStart(2,"0"),mm=String(Math.floor(total%3600/60)).padStart(2,"0"),ss=String(total%60).padStart(2,"0");uptimeNode.textContent=hh+":"+mm+":"+ss;}
+  updateUptime();setInterval(updateUptime,1000);
 
   /* BOOT SEQUENCE */
   function bootSequence(){
