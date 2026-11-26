@@ -1926,3 +1926,32 @@ a.md-link:hover {
 .term-shot .frame:focus-within img {
   filter: none;
 }
+
+
+/* --- Holographic HUD enhancement: lightweight CSS only --- */
+body {
+  position: relative;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 78% 34%, rgba(0,225,255,.075), transparent 38%), radial-gradient(ellipse at 14% 82%, rgba(255,47,179,.045), transparent 34%), var(--bg,#0c0b0d);
+}
+body::before {
+  content:""; position:fixed; z-index:-1; top:48%; right:max(3vw,calc((100vw - 1200px)/2));
+  width:clamp(230px,34vw,470px); aspect-ratio:1; border:1px solid rgba(76,232,255,.26); border-radius:50%;
+  background:radial-gradient(circle,transparent 43%,rgba(65,222,255,.08) 44%,transparent 45%),repeating-conic-gradient(from 0deg,rgba(78,228,255,0) 0deg 8deg,rgba(78,228,255,.32) 8.3deg 8.6deg,transparent 9deg 18deg);
+  box-shadow:0 0 22px rgba(0,210,255,.12),inset 0 0 35px rgba(0,210,255,.08);
+  transform:translateY(-50%) perspective(700px) rotateX(62deg) rotateZ(-18deg); animation:holo-orbit 24s linear infinite; pointer-events:none;
+}
+body::after {
+  content:"HOLO / INTERFACE     SYSTEM ONLINE"; position:fixed; z-index:-1; right:max(4vw,calc((100vw - 1160px)/2)); top:18%;
+  padding:9px 12px; border:1px solid rgba(76,232,255,.22); border-left:2px solid rgba(76,232,255,.8);
+  background:rgba(4,18,25,.36); color:rgba(116,231,255,.72); font:9px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.18em; text-shadow:0 0 9px rgba(0,210,255,.6); box-shadow:0 0 18px rgba(0,210,255,.08);
+  pointer-events:none; animation:holo-flicker 6s ease-in-out infinite;
+}
+@keyframes holo-orbit { from {filter:hue-rotate(0deg)} to {filter:hue-rotate(35deg)} }
+@keyframes holo-flicker { 0%,100%{opacity:.52} 48%{opacity:.9} 50%{opacity:.62} 53%{opacity:.86} }
+@media(max-width:700px) {
+ body::before{top:58%;right:-100px;width:230px;opacity:.48}
+ body::after{top:13%;right:16px;font-size:8px;opacity:.45}
+}
+@media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
