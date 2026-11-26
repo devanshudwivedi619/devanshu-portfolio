@@ -187,6 +187,13 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
 @media(max-width:700px) { .container { width:min(100% - 26px,600px); }.nav-inner { min-height:62px; }.nav-links { gap:11px; font-size:8px; }.nav-status { display:none; }.hero { padding:43px 0 42px; gap:0; }.hero h1 { font-size:clamp(36px,11vw,58px); }.earth-stage { min-height:380px; margin-top:4px; }.node { width:31px; height:31px; margin:-15px; transform:rotate(var(--orbit-angle)) rotate(var(--angle)) translateY(-154px) rotate(calc(-1 * var(--angle))) rotate(calc(-1 * var(--orbit-angle))); }.hub-readout { right:0; bottom:0; min-width:148px; font-size:8px; }.lab-section { padding:52px 0 65px; }.lab-heading { align-items:flex-start; flex-direction:column; }.lab-layout { grid-template-columns:1fr; }.sidebar { padding:11px; }.module-list { grid-template-columns:repeat(2,minmax(0,1fr)); }.module-item { min-height:40px; }.lab-main { padding:11px; }.selected-head { flex-direction:column; }.live-tag { align-self:flex-start; }.visual-panel { min-height:360px; }.visual-stage { min-height:290px; }.roadmap-grid { grid-template-columns:repeat(2,1fr); } }
 @media(max-width:440px) { .nav-links a:nth-child(3) { display:none; }.logo { font-size:10px; }.earth-stage { min-height:330px; }.node { width:27px; height:27px; margin:-13px; }.node { transform:rotate(var(--orbit-angle)) rotate(var(--angle)) translateY(-132px) rotate(calc(-1 * var(--angle))) rotate(calc(-1 * var(--orbit-angle))); }.hero-meta { gap:10px; font-size:8px; }.parameter-bar { gap:9px; }.parameter-bar input[type=range] { width:100%; order:3; }.visual-panel { min-height:330px; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }.reveal { opacity:1; transform:none; } }
+
+.city-shell{position:relative;min-height:380px;margin:28px 0 34px;border:1px solid rgba(61,242,255,.3);background:radial-gradient(ellipse at 50% 75%,rgba(20,67,106,.45),transparent 62%),#050b1a;overflow:hidden;box-shadow:0 0 45px rgba(61,242,255,.08)}
+#cityCanvas{display:block;width:100%;height:380px}.city-hud{position:absolute;inset:14px 16px auto;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:10px monospace;letter-spacing:.12em;color:var(--cyan);pointer-events:none}.city-hud strong{color:var(--mint)}
+.breach-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0;border-block:1px solid rgba(61,242,255,.2)}.breach-row h3{font-family:Orbitron,monospace;letter-spacing:.1em;margin:6px 0}.action-button{border:1px solid var(--pink);background:rgba(255,61,129,.1);color:#fff;padding:13px 18px;font:700 11px monospace;letter-spacing:.1em;cursor:pointer}.action-button:hover{background:rgba(255,61,129,.22)}.action-button:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
+.security-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.security-cell{border:1px solid rgba(61,242,255,.2);background:rgba(9,20,42,.65);padding:16px;display:grid;gap:8px}.security-cell span,.security-cell small{font:9px monospace;letter-spacing:.1em;color:#91a9c4}.security-cell b{font:700 22px Orbitron,monospace;color:var(--mint)}.meter{height:5px;background:rgba(255,255,255,.1);overflow:hidden}.meter i{display:block;height:100%;background:var(--mint);transition:width .35s}.threat-meter i{background:var(--pink)}
+@media(max-width:650px){.city-shell,#cityCanvas{min-height:300px;height:300px}.breach-row{align-items:flex-start;flex-direction:column}.security-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -258,6 +265,15 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
       </section>
     </div>
   </div>
+</section>
+
+<section class="section reveal" id="city-mode">
+<div class="section-kicker">CITY MODE / SYSTEM-WIDE SIMULATION</div>
+<h2 class="section-title">THE CITY <span class="accent">IS ALIVE.</span></h2>
+<p class="section-copy">All fifteen technologies converge in one animated smart-city network. This is a visual concept simulation, not a live city-control system.</p>
+<div class="city-shell"><canvas id="cityCanvas" aria-label="Animated futuristic smart city"></canvas><div class="city-hud"><span>SECTOR 09 · AETHER GRID</span><strong id="cityStatus">ALL SYSTEMS NOMINAL</strong><span>DRONES 07 · NODES 120 · GRID 99%</span></div></div>
+<div class="breach-row"><div><div class="section-kicker">SECURITY EXERCISE / VISUAL ONLY</div><h3>BREACH SIMULATION</h3><p class="section-copy">Trigger a harmless animated threat and watch the fictional city defenses respond.</p></div><button class="action-button" id="breachButton" type="button">INITIATE BREACH TEST ↗</button></div>
+<div class="security-grid"><div class="security-cell"><span>INTEGRITY</span><b id="integrityValue">100%</b><div class="meter"><i id="integrityFill" style="width:100%"></i></div></div><div class="security-cell"><span>THREAT COUNTER</span><b id="threatValue">00</b><div class="meter threat-meter"><i id="threatFill" style="width:0%"></i></div></div><div class="security-cell"><span>DEFENSE STATUS</span><b id="defenseValue">ARMED</b><small id="defenseLog">POST-QUANTUM · SWARM · ZK PROOF READY</small></div></div>
 </section>
 <section class="roadmap container" id="roadmap">
   <div class="eyebrow">SYSTEM EXPANSION // STAGED RELEASE</div><h2 class="section-heading">15 SECTORS. <span class="accent">ONE CITY.</span></h2>
@@ -753,6 +769,16 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
     for(const canvas of [earthCanvas]){const r=canvas.getBoundingClientRect();if(r.width&&r.height){const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}}}
     sizeMatrix();
   }
+
+
+  /* CITY MODE — animation runs only while its section is visible. */
+  const cityCanvas=$("#cityCanvas"),cityCtx=cityCanvas.getContext("2d");let cityVisible=false,cityRAF=0,breachUntil=0,breachCount=0;
+  function resizeCity(){const r=cityCanvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,1.5);cityCanvas.width=Math.max(1,Math.round(r.width*d));cityCanvas.height=Math.max(1,Math.round(r.height*d));cityCtx.setTransform(d,0,0,d,0,0);}
+  function drawCity(now){if(!cityVisible||document.hidden)return;const r=cityCanvas.getBoundingClientRect(),w=r.width,h=r.height,t=(now-startTime)/1000,c=cityCtx,ground=h*.78;clearCanvas(c,w,h);c.fillStyle="rgba(5,8,22,.45)";c.fillRect(0,ground,w,h-ground);for(let i=0;i<18;i++){const bw=22+(i%4)*13,bh=45+(i*37%120),x=i*w/18;c.fillStyle="rgba(10,34,65,.95)";c.fillRect(x,ground-bh,bw,bh);c.strokeStyle="rgba(61,242,255,.42)";c.strokeRect(x,ground-bh,bw,bh);for(let yy=ground-bh+10;yy<ground-6;yy+=13)for(let xx=x+6;xx<x+bw-4;xx+=10){c.fillStyle=(i+Math.floor(yy)+Math.floor(t*3))%4?"rgba(61,242,255,.5)":"rgba(255,200,87,.8)";c.fillRect(xx,yy,3,4);}}for(let i=0;i<5;i++){const y=ground+8+i*12;c.strokeStyle="rgba(61,242,255,.22)";c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}for(let i=0;i<7;i++){const x=((t*55+i*w/7)%(w+20))-10,y=h*.15+(i%3)*h*.1;c.save();c.translate(x,y);c.strokeStyle="#ffc857";glow(c,"#ffc857",8);c.beginPath();c.moveTo(-8,0);c.lineTo(0,-4);c.lineTo(8,0);c.lineTo(0,4);c.closePath();c.stroke();c.restore();}for(let i=0;i<70;i++){const x=(i*79+t*18)%w,y=ground+4+Math.sin(i+t)*10;c.fillStyle="#3df2ff";c.fillRect(x,y,2,2);}if(now<breachUntil){const pulse=.5+.5*Math.sin(t*18);c.fillStyle="rgba(255,61,129,"+(.08+pulse*.12)+")";c.fillRect(0,0,w,h);c.strokeStyle="#ff3d81";glow(c,"#ff3d81",18);c.lineWidth=3;c.strokeRect(8,8,w-16,h-16);text(c,"INTRUSION VECTOR DETECTED",w/2,h*.16,"#ff3d81",12,"center");}if(!reducedMotion.matches)cityRAF=requestAnimationFrame(drawCity);}
+  function startCity(){if(!cityVisible||document.hidden)return;resizeCity();if(cityRAF)cancelAnimationFrame(cityRAF);if(reducedMotion.matches)drawCity(performance.now());else cityRAF=requestAnimationFrame(drawCity);}
+  const cityObserver=new IntersectionObserver(entries=>{cityVisible=entries[0].isIntersecting;if(cityVisible)startCity();else if(cityRAF){cancelAnimationFrame(cityRAF);cityRAF=0;}},{threshold:.05});cityObserver.observe($("#city-mode"));
+  $("#breachButton").addEventListener("click",()=>{breachCount++;breachUntil=performance.now()+3800;$("#integrityValue").textContent="96%";$("#integrityFill").style.width="96%";$("#threatValue").textContent=String(breachCount).padStart(2,"0");$("#threatFill").style.width=Math.min(100,breachCount*18)+"%";$("#defenseValue").textContent="DEFENDING";$("#defenseLog").textContent="POST-QUANTUM SHIELD · SWARM INTERCEPT · ZK VERIFIED";$("#cityStatus").textContent="THREAT DETECTED · COUNTERMEASURES ACTIVE";if(cityVisible)startCity();setTimeout(()=>{$("#integrityValue").textContent="100%";$("#integrityFill").style.width="100%";$("#defenseValue").textContent="SECURED";$("#defenseLog").textContent="THREAT CONTAINED · VISUAL SIMULATION ONLY";$("#cityStatus").textContent="ALL SYSTEMS NOMINAL";},3900);});
+  window.addEventListener("resize",()=>{if(cityVisible)startCity();});
 
   /* BOOT SEQUENCE */
   function bootSequence(){
