@@ -77,8 +77,8 @@ const chroma = (value) => Math.hypot(lab(value)[1], lab(value)[2]);
 const mix = (a, b, t) => `#${hex(a).map((v, n) => Math.round(v * (1 - t) + hex(b)[n] * t).toString(16).padStart(2, "0")).join("")}`;
 
 const DEFAULT_THEME = "blackmoney";
-const THEME_KEY = "portfolio.scheme";
-const WORM_KEY = "portfolio.worm";
+const THEME_KEY = "devanshu-portfolio.scheme";
+const WORM_KEY = "devanshu-portfolio.worm";
 let currentTheme = DEFAULT_THEME;
 let openEntry = null;
 let booted = false;
