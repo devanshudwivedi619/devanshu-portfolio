@@ -32,9 +32,6 @@ document.addEventListener("click", (event) => {
   const raw = (control.getAttribute("aria-label") || control.dataset.repo || control.dataset.project || control.dataset.label || control.textContent || control.title || "").replace(/\s+/g, " ").trim();
   if (!raw) return;
   const normalized = raw.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-  const data = contentPromise && window.__jarvisContent;
-  const project = data?.projects?.find(p => normalized.includes(p.repo.toLowerCase()) || p.repo.toLowerCase().includes(normalized));
-  const spokenName = project ? project.repo.replaceAll("-", " ") : raw.replaceAll("-", " ").replaceAll("/", " ");
+  const spokenName = raw.replaceAll("-", " ").replaceAll("/", " ");
   say("Selected " + spokenName + ".");
 }, true);
-});
