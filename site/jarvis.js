@@ -22,3 +22,22 @@ mission.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>
 const winbar=document.querySelector(".winbar"),buffer=document.querySelector(".buffer");let lastTitle="";
 async function announce(){const kind=buffer?.dataset.kind||"",title=winbar?.textContent?.trim()||"";if(!kind||title===lastTitle)return;lastTitle=title;scanAll();const data=await contentPromise;let message="";if(kind==="project"&&data){const p=data.projects.find(x=>title.toLowerCase().includes(x.repo.toLowerCase()));message=p?"Opening "+p.repo.replaceAll("-"," ")+". "+p.description:"Opening project "+title.replaceAll("-"," ")}else if(kind==="about")message="Identity module active. Welcome. Devanshu Dwivedi. Computer Science graduate focused on data analytics.";else if(kind==="stack")message="Technology stack module active. Reviewing tools, languages and platforms.";else if(kind==="themes")message="Visual themes module active.";else message=kind+" module active.";say(message)}
 if(winbar&&buffer){const obs=new MutationObserver(announce);obs.observe(winbar,{childList:true,subtree:true,characterData:true});obs.observe(buffer,{attributes:true,attributeFilter:["data-kind"]});document.addEventListener("click",e=>{if(e.target.closest(".wheel-item"))setTimeout(announce,220)})}
+
+// Universal click-to-speak: announce the exact project/module/control the visitor activates.
+document.addEventListener("click", async (event) => {
+  if (!voiceOn || !("speechSynthesis" in window)) return;
+  if (event.target.closest(".j-voice, .hero-core, .deck-voice-toggle, .j-mission-card, .hero-module")) return;
+  const control = event.target.closest(".wheel-item, .archive-card, .archive-item, .project-card, .buffer a, .buffer button, .tabline, .den, .bar a, [data-project], [data-repo], [role='button'], a, button");
+  if (!control) return;
+  const raw = (control.getAttribute("aria-label") || control.dataset.repo || control.dataset.project || control.dataset.label || control.textContent || control.title || "").replace(/\\s+/g, " ").trim();
+  if (!raw) return;
+  const data = await contentPromise;
+  const normalized = raw.toLowerCase().replace(/\\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const project = data?.projects?.find(p => {
+    const slug = p.repo.toLowerCase();
+    return normalized.includes(slug) || slug.includes(normalized);
+  });
+  const spokenName = project ? project.repo.replaceAll("-", " ") : raw.replaceAll("-", " ").replaceAll("/", " ");
+  const description = project?.description ? " " + project.description : "";
+  say("Selected " + spokenName + "." + description);
+}, true);
