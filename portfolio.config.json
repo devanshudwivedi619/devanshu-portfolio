@@ -4,12 +4,12 @@
     "barTitle": "DEVANSHU DWIVEDI",
     "terminalUser": "devanshu",
     "domain": "",
-    "tagline": "data engineering, analytics, and cloud.",
+    "tagline": "data analytics, engineering, and cloud.",
     "github": "devanshudwivedi619",
     "storagePrefix": "devanshu-portfolio"
   },
   "about": {
-    "bio": "Computer Science graduate building skills in data analytics, data engineering, and cloud technologies through hands-on learning and projects.",
+    "bio": "Computer Science graduate interested in data analytics and data engineering. I work with Excel, SQL fundamentals, and Power BI, and am currently learning Python, PySpark, and AWS through hands-on practice and projects.",
     "extra": "India · Open to opportunities"
   },
   "links": [
@@ -23,11 +23,106 @@
     },
     {
       "label": "LinkedIn",
-      "url": "https://linkedin.com/in/devanshu-dwivedi-403783371"
+      "url": "https://www.linkedin.com/in/devanshu-dwivedi-403783371/"
     }
   ],
   "work": [],
-  "projects": [],
+  "projects": [
+    {
+      "name": "Sales & Customer Analytics Dashboard",
+      "tag": "Business Intelligence · Power BI",
+      "desc": "An interactive sales and customer report built with Excel and Power BI to analyze revenue, profit, orders, payment methods, sales channels, delivery status, and geographic performance.",
+      "long": "Prepared and structured source data in Excel, then used Power Query, data modeling, and DAX in Power BI. The report includes KPI cards and interactive visuals for products, order status, payment methods, sales channels, sub-categories, profit by category, and state-wise sales. The repository documents that the dataset is synthetic/sample data.",
+      "githubRepo": "devanshudwivedi619/Sales-Customer-Analytics-Dashboard",
+      "shots": [],
+      "stack": [
+        "Power BI",
+        "Excel",
+        "Power Query",
+        "DAX",
+        "Data Modeling"
+      ],
+      "url": "https://github.com/devanshudwivedi619/Sales-Customer-Analytics-Dashboard"
+    },
+    {
+      "name": "IT Spend & Asset Utilization Dashboard",
+      "tag": "IT Analytics · Power BI",
+      "desc": "A dashboard exploring IT spend, software license usage, unused licenses, vendor costs, department budgets, and contract renewal status.",
+      "long": "The repository describes a 300-record sample dataset and reports ₹5.51 crore in total IT spend, 9,025 purchased licenses, 69.42% utilization, and 2,778 unused licenses. Built using Power BI, DAX, and Power Query. Figures are from the sample project dataset, not a real company engagement.",
+      "githubRepo": "devanshudwivedi619/IT-Spend-Asset-Utilization-PowerBI-Dashboard",
+      "shots": [],
+      "stack": [
+        "Power BI",
+        "DAX",
+        "Power Query",
+        "Data Visualization"
+      ],
+      "url": "https://github.com/devanshudwivedi619/IT-Spend-Asset-Utilization-PowerBI-Dashboard"
+    },
+    {
+      "name": "Superstore Sales & Profit Insights",
+      "tag": "Retail Analytics · Power BI",
+      "desc": "An interactive analysis of retail orders, sales, profit, customer segments, product categories, order priority, and regional performance.",
+      "long": "The project README describes analysis of 9,426 orders from 2010–2013, with reported totals of $8.95M sales and $1.31M profit. It includes KPI cards, sales and profit trends, category profitability, customer segment analysis, order priority, geographic visuals, and interactive filters.",
+      "githubRepo": "devanshudwivedi619/Superstore-Sales-Profit-Insights-Dashboard-",
+      "shots": [],
+      "stack": [
+        "Power BI",
+        "Excel",
+        "Power Query",
+        "DAX"
+      ],
+      "url": "https://github.com/devanshudwivedi619/Superstore-Sales-Profit-Insights-Dashboard-"
+    },
+    {
+      "name": "Hotel Booking Demand Analysis",
+      "tag": "Exploratory Data Analysis · Python",
+      "desc": "An exploratory analysis of hotel booking patterns, cancellations, seasonal arrivals, pricing, market segments, and guest behavior.",
+      "long": "The repository documents a Jupyter Notebook analysis of the Hotel Booking Demand dataset. It covers data cleaning, duplicate handling, feature creation, 14 visualization sections, findings, and business recommendations. The README records 119,390 original rows and 87,396 rows after duplicate removal.",
+      "githubRepo": "devanshudwivedi619/hotel-booking-demand-analysis",
+      "shots": [],
+      "stack": [
+        "Python",
+        "Pandas",
+        "NumPy",
+        "Matplotlib",
+        "Seaborn",
+        "Jupyter"
+      ],
+      "url": "https://github.com/devanshudwivedi619/hotel-booking-demand-analysis"
+    },
+    {
+      "name": "Business Intelligence Sales Dashboard",
+      "tag": "Business Reporting · Excel",
+      "desc": "An interactive Excel dashboard analyzing 2018–2021 sales data with KPIs, category trends, regional performance, shipping costs, and order-source insights.",
+      "long": "The repository includes raw sales data and an Excel dashboard using Pivot Tables, Pivot Charts, slicers, conditional formatting, and macros. The README highlights category-wise, regional, shipping-cost, and platform analysis.",
+      "githubRepo": "devanshudwivedi619/Business-Intelligence-Dashboard",
+      "shots": [],
+      "stack": [
+        "Microsoft Excel",
+        "Pivot Tables",
+        "Pivot Charts",
+        "Slicers",
+        "Business Intelligence"
+      ],
+      "url": "https://github.com/devanshudwivedi619/Business-Intelligence-Dashboard"
+    },
+    {
+      "name": "Stack Overflow Developer Survey Dashboard",
+      "tag": "Workforce Analytics · Power BI",
+      "desc": "A dashboard exploring 49K+ developer survey responses across 178 countries, including demographics, education, employment, industries, and work preferences.",
+      "long": "The project README describes a Power BI report using the Stack Overflow Developer Survey dataset, with analysis of developer demographics, education, employment status, work modes, experience, industries, and country-level patterns.",
+      "githubRepo": "devanshudwivedi619/Stack-Overflow-Power-bi-Dashboard",
+      "shots": [],
+      "stack": [
+        "Power BI",
+        "Power Query",
+        "DAX",
+        "Data Modeling"
+      ],
+      "url": "https://github.com/devanshudwivedi619/Stack-Overflow-Power-bi-Dashboard"
+    }
+  ],
   "talks": [],
   "wallRepos": [],
   "siteStack": [
