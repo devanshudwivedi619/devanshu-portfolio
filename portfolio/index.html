@@ -443,7 +443,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid v
       parameter:{label:"HOLOGRAM PANELS",min:2,max:8,step:1,value:5,unit:" panels"},
       code:p=>`from aether.spatial import Headset\nfrom aether.hud import HoloPanel\n\nheadset = Headset.connect()\npanel_count = ${p.value}\n\nfor index in range(panel_count):\n    panel = HoloPanel.spawn(index)\n    panel.anchor_to("world")\n    panel.enable_depth_parallax()\n\nheadset.render_spatial_ui()\nprint("MIXED REALITY: READY")`,
       draw:drawMR
-    }
+    },
     {id:6,short:"HUMANOID",title:"Humanoid Robots",file:"atlas_motion.py",visual:"ATLAS MOTION BAY",desc:"Humanoid balances, walks and waves.",parameter:{label:"SERVO SPEED",min:1,max:5,step:1,value:3,unit:"×"},code:p=>"atlas = Humanoid.connect('atlas-09')\natlas.servo_speed = VALUE\natlas.animate_gesture('wave')".replaceAll("VALUE",String(p.value)),draw:drawRobot},
     {id:7,short:"SWARM",title:"Swarm Robotics",file:"swarm_mesh.py",visual:"SWARM FORMATION FIELD",desc:"100+ robots form patterns and avoid obstacles.",parameter:{label:"ROBOT COUNT",min:60,max:180,step:20,value:120,unit:" units"},code:p=>"fleet = Fleet(size=VALUE)\nfleet.set_formation('AETHER')\nfleet.enable_collision_avoidance()".replaceAll("VALUE",String(p.value)),draw:drawSwarm},
     {id:8,short:"SELF-HEALING",title:"Self-healing Materials",file:"lattice_repair.py",visual:"MATERIAL REPAIR MATRIX",desc:"Cracked smart material seals its glowing fractures.",parameter:{label:"DAMAGE LEVEL",min:1,max:5,step:1,value:3,unit:" / 5"},code:p=>"panel = SmartLattice('composite-22')\npanel.damage_level = VALUE\npanel.repair_fractures()".replaceAll("VALUE",String(p.value)),draw:drawHealing},
