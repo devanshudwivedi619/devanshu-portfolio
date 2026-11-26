@@ -1955,3 +1955,49 @@ body::after {
  body::after{top:13%;right:16px;font-size:8px;opacity:.45}
 }
 @media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
+
+
+/* Cinematic nanotech-inspired hologram navigation */
+.holo-nav {
+ position:fixed; z-index:20; right:clamp(14px,4vw,58px); top:50%; transform:translateY(-50%);
+ width:clamp(210px,24vw,300px); padding:14px 12px 12px;
+ border:1px solid rgba(86,225,255,.34); border-radius:3px;
+ background:linear-gradient(145deg,rgba(5,22,32,.83),rgba(4,10,18,.58));
+ box-shadow:0 0 28px rgba(0,204,255,.13),inset 0 0 24px rgba(0,194,255,.055);
+ backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+ clip-path:polygon(0 0,92% 0,100% 12%,100% 100%,8% 100%,0 88%);
+}
+.holo-heading {display:flex;align-items:center;gap:8px;padding:2px 8px 12px;color:#8beaff;font:10px ui-monospace,monospace;letter-spacing:.18em;border-bottom:1px solid rgba(86,225,255,.2)}
+.holo-heading small {margin-left:auto;color:rgba(151,220,239,.52);font-size:8px;letter-spacing:.08em}
+.holo-pulse {width:6px;height:6px;border-radius:50%;background:#68edff;box-shadow:0 0 12px #4de7ff;animation:holo-pulse 1.7s infinite}
+.holo-destination {position:relative;display:flex;align-items:center;gap:11px;width:100%;padding:13px 8px;margin-top:5px;text-align:left;color:#c7f5ff;background:transparent;border:1px solid transparent;cursor:pointer;transition:background .25s,border-color .25s,transform .25s;overflow:hidden}
+.holo-destination::before {content:"";position:absolute;inset:0;transform:translateX(-110%);background:linear-gradient(100deg,transparent,rgba(65,225,255,.13),transparent);transition:transform .55s}
+.holo-destination:hover,.holo-destination:focus-visible,.holo-destination.is-selected {outline:none;border-color:rgba(82,226,255,.4);background:rgba(28,139,169,.12);transform:translateX(-4px);box-shadow:0 0 16px rgba(0,205,255,.1)}
+.holo-destination:hover::before {transform:translateX(110%)}
+.holo-number {font:10px ui-monospace,monospace;color:#4bcce8;opacity:.8}
+.holo-copy {display:flex;flex-direction:column;gap:4px}
+.holo-copy b {font:600 10px ui-monospace,monospace;letter-spacing:.12em}
+.holo-copy small {font:10px ui-monospace,monospace;color:rgba(188,229,239,.55)}
+.holo-arrow {margin-left:auto;color:#6deaff;font-size:16px}
+.holo-gate {position:fixed;z-index:9999;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;background:radial-gradient(circle,rgba(10,93,121,.28),rgba(1,5,12,.96) 55%);color:#a8f4ff;font-family:ui-monospace,monospace;letter-spacing:.2em;opacity:0;animation:gate-in .72s ease-out forwards}
+.gate-ring {width:min(48vw,360px);aspect-ratio:1;border:2px solid rgba(89,232,255,.8);border-radius:50%;box-shadow:0 0 18px #00cfff,inset 0 0 32px rgba(0,205,255,.35);background:repeating-conic-gradient(from 0deg,transparent 0 8deg,rgba(83,226,255,.6) 8.4deg 8.8deg,transparent 9deg 18deg);animation:gate-spin .8s linear infinite;mask:radial-gradient(circle,transparent 43%,#000 44% 45%,transparent 46% 54%,#000 55% 56%,transparent 57%)}
+.gate-core {position:absolute;width:9px;height:9px;border-radius:50%;background:#d7fbff;box-shadow:0 0 35px 15px #00cfff}
+.holo-gate p {font-size:11px;margin:0;text-shadow:0 0 12px #00cfff}
+.holo-gate small {font-size:9px;color:rgba(168,244,255,.55)}
+@keyframes gate-spin {to{transform:rotate(360deg)}}
+@keyframes gate-in {to{opacity:1}}
+@keyframes holo-pulse {50%{opacity:.35;box-shadow:0 0 3px #4de7ff}}
+@media(max-width:900px) {
+ .holo-nav {top:auto;bottom:76px;right:12px;transform:none;width:min(260px,calc(100vw - 24px));padding:8px}
+ .holo-destination {padding:9px 7px;margin-top:2px}
+ .holo-heading {padding-bottom:8px}
+}
+@media(max-width:520px) {
+ .holo-nav {width:calc(100vw - 24px);bottom:68px}
+ .holo-destination {padding:8px}
+ .holo-copy b {font-size:9px}
+}
+@media(prefers-reduced-motion:reduce) {
+ .holo-pulse,.gate-ring {animation:none}
+ .holo-destination,.holo-gate {transition:none}
+}
