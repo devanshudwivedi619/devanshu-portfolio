@@ -333,14 +333,6 @@ function aboutSpec() {
   return {
     cwd: "~",
     branch: null,
-    hero: (host) =>
-      createBlueprint(host, {
-        points: snapshot.contributions.total,
-        from: snapshot.contributions.from,
-        to: snapshot.contributions.to,
-        owner: about.name,
-        family: false,
-      }),
     blocks: [
       {
         cmd: "whoami",
@@ -348,17 +340,7 @@ function aboutSpec() {
           ...about.bio.map((line) => ({ segments: [line], className: "t-dim" })),
         ],
       },
-      {
-        cmd: `fetch ${about.name}`,
-        out: [
-          fact("followers", snapshot.followers),
-          fact("stars", snapshot.stars.total, [[`  own ${fmt(snapshot.stars.own)} · marketplace ${fmt(snapshot.stars.marketplace)}`, "t-dim"]]),
-          fact("repos", snapshot.stars.repositoryCount),
-          fact("contribs", snapshot.contributions.total, [[`  ${snapshot.contributions.from} → ${snapshot.contributions.to}`, "t-dim"]]),
-        ],
-      },
       { cmd: "ls links/", out: [{ segments: about.links.flatMap((link, k) => [...(k ? ["   "] : []), [link.name, "", link.url]]) }] },
-      ...(stack ? [] : [calendarBlock()]),
     ],
   };
 }
@@ -384,11 +366,10 @@ function stackSpec() {
       { cmd: "stack --languages", out: lang },
       {
         cmd: "stack --tools",
-        out: [...grid(stack.tools, 12), { segments: ["numbers: repos with evidence (files, topics, names)"], className: "t-dim" }],
+        out: [...grid(stack.tools, 12), { segments: ["numbers: portfolio projects using each tool"], className: "t-dim" }],
       },
       ...(stack.ai?.length ? [{ cmd: "stack --ai-tools", out: [...grid(stack.ai, 12), { segments: ["listed by the owner"], className: "t-dim" }] }] : []),
       { cmd: "stack --site", out: stack.site.map((tool) => ({ segments: [{ icon: tool.icon, letter: tool.name }, " ", [tool.name.padEnd(20)], [tool.via, "t-dim"]] })) },
-      calendarBlock(),
     ],
   };
 }
