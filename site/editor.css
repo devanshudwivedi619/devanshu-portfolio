@@ -2007,3 +2007,13 @@ body::after {
 @media(max-width:900px){.hero-deck{width:min(620px,calc(100vw - 28px));min-width:0;bottom:62px}.hero-orbits{height:54px}.hero-modules{gap:6px}.hero-module{padding:8px 3px}.module-art{transform:scale(.86)}}
 @media(max-width:520px){.hero-deck{padding:10px 9px 8px;bottom:58px}.deck-title{margin:8px 0 0}.hero-orbits{height:42px}.hero-module>b{font-size:8px}.hero-module>small{font-size:8px}.module-label{font-size:7px}.deck-foot{font-size:7px}.deck-foot span:first-child{display:none}.deck-foot span:last-child{margin:auto}}
 @media(prefers-reduced-motion:reduce){.hero-deck *,.hero-jump *{animation:none!important;transition:none!important}}
+
+
+/* Voice-reactive hologram core */
+.hero-core {cursor:pointer;transition:transform .28s ease,box-shadow .28s ease,filter .28s ease}
+.hero-core:focus-visible {outline:1px solid #b9faff;outline-offset:5px}
+.hero-core.is-speaking {transform:scale(1.24);filter:brightness(1.45);box-shadow:0 0 20px #2edfff,0 0 55px rgba(0,210,255,.8),inset 0 0 18px #d8ffff}
+.deck-voice-toggle {padding:3px 7px;border:1px solid rgba(91,220,245,.3);background:rgba(5,22,33,.55);color:rgba(157,231,246,.8);font:8px ui-monospace,monospace;letter-spacing:.12em;cursor:pointer}
+.deck-voice-toggle:hover,.deck-voice-toggle:focus-visible {border-color:#67eaff;color:#e8fcff;outline:none;box-shadow:0 0 12px rgba(0,208,255,.2)}
+.deck-voice-toggle[aria-pressed="false"] {color:rgba(255,160,185,.8);border-color:rgba(255,120,160,.32)}
+@media(max-width:520px){.deck-voice-toggle{padding:2px 4px;font-size:7px}.deck-top{gap:5px}.deck-coordinate{display:none}}
