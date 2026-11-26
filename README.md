@@ -1,83 +1,38 @@
-# dev-portfolio-template
+# Devanshu Dwivedi — Portfolio
 
-A Neovim-inspired developer portfolio template with an animated code-wall intro, interactive terminal-style editor, 8 built-in color themes, contribution calendar, and keyboard-first navigation (`j`/`k`, `:theme`, `enter`).
+Personal portfolio website built from a Neovim-inspired static portfolio template and customized to showcase my data analytics and data projects.
 
-Zero build step required — pure HTML, CSS, and ES modules.
+## About
 
-<p align="center">
-  <img src="./assets/demo.gif" alt="Portfolio Demo Reel" width="340" />
-</p>
+I am a Computer Science graduate interested in data analytics, data engineering, and cloud technologies. I work with Excel, SQL fundamentals, and Power BI, and I am currently learning Python, PySpark, and AWS through hands-on practice.
 
-<p align="center">
-  <a href="./assets/demo.mp4">Watch full HD video (<code>assets/demo.mp4</code>)</a>
-</p>
+## Featured Projects
 
-| Intro & Code Wall | Interactive Editor |
-| :---: | :---: |
-| <img src="./assets/preview-1.png" alt="Intro & Code Wall" width="420" /> | <img src="./assets/preview-2.png" alt="Interactive Editor" width="420" /> |
-| **Projects & Stack** | **Themes & Terminal** |
-| <img src="./assets/preview-3.png" alt="Projects & Stack" width="420" /> | <img src="./assets/preview-4.png" alt="Themes & Terminal" width="420" /> |
+| Project | Tools | Repository |
+|---|---|---|
+| Sales & Customer Analytics Dashboard | Power BI, Excel, Power Query, DAX | [Open](https://github.com/devanshudwivedi619/Sales-Customer-Analytics-Dashboard) |
+| IT Spend & Asset Utilization Dashboard | Power BI, DAX, Power Query | [Open](https://github.com/devanshudwivedi619/IT-Spend-Asset-Utilization-PowerBI-Dashboard) |
+| Superstore Sales & Profit Insights | Power BI, Excel, DAX | [Open](https://github.com/devanshudwivedi619/Superstore-Sales-Profit-Insights-Dashboard-) |
+| Hotel Booking Demand Analysis | Python, Pandas, NumPy, Jupyter | [Open](https://github.com/devanshudwivedi619/hotel-booking-demand-analysis) |
+| Business Intelligence Sales Dashboard | Excel, Pivot Tables, Slicers | [Open](https://github.com/devanshudwivedi619/Business-Intelligence-Dashboard) |
+| Stack Overflow Developer Survey Dashboard | Power BI, Power Query, DAX | [Open](https://github.com/devanshudwivedi619/Stack-Overflow-Power-bi-Dashboard) |
 
----
+## Contact
 
-## Quick Start (With One AI Prompt)
+- GitHub: https://github.com/devanshudwivedi619
+- LinkedIn: https://www.linkedin.com/in/devanshu-dwivedi-403783371/
+- Email: devanshudwivedi619@gmail.com
 
-1. Click **"Use this template"** on GitHub (or clone this repo).
-2. Open the folder in your AI coding assistant (Cursor, Claude Code, Antigravity, Windsurf, Copilot, etc.).
-3. Copy the prompt from **[`AI_PROMPT.md`](./AI_PROMPT.md)**, paste your resume / bio / links / projects at the bottom, and send it.
-4. Preview locally:
-   ```sh
-   python3 serve.py
-   ```
-   Open `http://localhost:8767/` (intro) and `http://localhost:8767/site/` (editor).
+## Run locally
 
----
+This is a static website. The original template instructions describe running it with Python's local server:
 
-## Manual Setup
-
-All personal information, links, work history, projects, and talks live in a single file:
-
-- **`portfolio.config.json`** — edit your `identity`, `about`, `links`, `work`, `projects`, and `talks`.
-
-Then regenerate the site files:
-
-```sh
-# Offline mode (updates HTML, JS, SVG, content.json, themes using your config)
-node scripts/build-data.mjs
-
-# Online mode (also fetches your real GitHub repos, languages, contribution calendar & code wall via `gh` CLI)
-node scripts/build-data.mjs --fetch-github
+```bash
+python3 serve.py
 ```
 
-> **Note:** Online mode requires the [GitHub CLI (`gh`)](https://cli.github.com/) to be installed and authenticated (`gh auth login`).
+Then open `http://localhost:8767/` and `http://localhost:8767/site/`.
 
----
+## Credits
 
-## Project Structure
-
-| Path | Purpose |
-|---|---|
-| `portfolio.config.json` | **Single source of truth** for all your personal info, projects, work, and talks |
-| `AI_PROMPT.md` | One-prompt template for AI assistants to personalize the entire site |
-| `scripts/build-data.mjs` | Syncs `portfolio.config.json` into HTML/JS/JSON (with optional `--fetch-github`) |
-| `index.html`, `glimpse.js`, `glimpse.css` | Landing intro with animated code wall and `:theme` switcher |
-| `site/` | Interactive Neovim/terminal-style portfolio (`/site/`) |
-| `site/shots/` | Project screenshots (supports `.png`, `.jpg`, `.webp`, `.svg`) |
-| `site/photos/` | Optional conference/talk photo galleries |
-| `serve.py` | Local dev server with `Cache-Control: no-store` (`python3 serve.py [port]`) |
-| `scripts/build-face.py` | Optional script to generate the looping face-tracking intro layer |
-
----
-
-## Adding Your Own Assets
-
-- **Project Screenshots**: Drop images into `site/shots/` and reference them as `"shots/my-app.png"` in `portfolio.config.json`.
-- **Talk Photos**: Drop photos into `site/photos/<event>/` and reference them in `talks[].photos` in `portfolio.config.json`.
-- **Custom Logo**: Replace the SVG `<path>` in `favicon.svg`, `index.html`, `site/index.html`, and `MARK` in `site/wheel.js`.
-- **Optional Face Intro Layer**: See `scripts/build-face.py` if you want to add a green-screened portrait loop to the intro. Without `face.mp4` / `face.webm` / `face-track.json`, the intro skips the face layer automatically.
-
----
-
-## Deploy
-
-This is a static site. Deploy the root directory directly to **GitHub Pages**, **Vercel**, **Netlify**, or **Cloudflare Pages** with no build command needed.
+The interactive Neovim-inspired interface is adapted from the original template by [pavanjoshi914](https://github.com/pavanjoshi914/dev-portfolio-template). The template's design and functionality are retained while the portfolio content is customized.
