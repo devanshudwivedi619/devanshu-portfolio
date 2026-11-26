@@ -35,7 +35,7 @@ const load = (url) =>
     if (!response.ok) throw new Error(`${url}: ${response.status}`);
     return response.json();
   });
-const [content, themeData, snapshot, stack, months] = await Promise.all([load("content.json"), load("/themes.json"), load("/github-snapshot.json"), load("stack.json").catch(() => null), load("months.json").catch(() => null)]);
+const [content, themeData, snapshot, stack, months] = await Promise.all([load("content.json"), load("../themes.json"), load("../github-snapshot.json"), load("stack.json").catch(() => null), load("months.json").catch(() => null)]);
 const themes = themeData.themes;
 const palettes = new Map(content.palettes.map((theme) => [key(theme.name), theme]));
 const days = snapshot.contributions.days;
