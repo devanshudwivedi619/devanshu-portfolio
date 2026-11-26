@@ -3,93 +3,7 @@
  "owner": "devanshudwivedi619",
  "repos": 0,
  "languages": [],
- "tools": [
-  {
-   "name": "DAX",
-   "repos": 4,
-   "icon": null
-  },
-  {
-   "name": "Power BI",
-   "repos": 4,
-   "icon": null
-  },
-  {
-   "name": "Power Query",
-   "repos": 4,
-   "icon": null
-  },
-  {
-   "name": "Data Modeling",
-   "repos": 2,
-   "icon": null
-  },
-  {
-   "name": "Excel",
-   "repos": 2,
-   "icon": null
-  },
-  {
-   "name": "Business Intelligence",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Data Visualization",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Jupyter",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Matplotlib",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Microsoft Excel",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "NumPy",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Pandas",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Pivot Charts",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Pivot Tables",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Python",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Seaborn",
-   "repos": 1,
-   "icon": null
-  },
-  {
-   "name": "Slicers",
-   "repos": 1,
-   "icon": null
-  }
- ],
+ "tools": [],
  "ai": [],
  "site": [
   {
@@ -103,5 +17,115 @@
    "icon": null
   }
  ],
- "source": "Tools listed from the portfolio project configuration; GitHub language statistics not fetched."
+ "source": "Skill areas and topics supplied by Devanshu. Proficiency labels distinguish current practical foundations from topics being learned.",
+ "skills": [
+  {
+   "name": "01 · Excel",
+   "level": "Basic practical knowledge",
+   "items": [
+    "VLOOKUP",
+    "XLOOKUP",
+    "INDEX-MATCH",
+    "SUMIFS",
+    "COUNTIFS",
+    "Pivot Tables",
+    "Pivot Charts",
+    "Power Query",
+    "Conditional Formatting",
+    "Data Validation",
+    "Basic Macros / VBA"
+   ]
+  },
+  {
+   "name": "02 · SQL",
+   "level": "Fundamentals / building skills",
+   "items": [
+    "SELECT, WHERE, GROUP BY, HAVING, ORDER BY",
+    "INNER, LEFT, RIGHT, FULL JOINS",
+    "Subqueries and CTEs",
+    "ROW_NUMBER, RANK, LAG, LEAD",
+    "Query optimization and indexing basics"
+   ]
+  },
+  {
+   "name": "03 · Statistics & Probability",
+   "level": "Learning",
+   "items": [
+    "Mean, median, standard deviation",
+    "Correlation and regression",
+    "Probability",
+    "Hypothesis testing",
+    "A/B testing"
+   ]
+  },
+  {
+   "name": "04 · Python",
+   "level": "Learning",
+   "items": [
+    "Pandas",
+    "NumPy",
+    "Matplotlib",
+    "Seaborn",
+    "Jupyter Notebook"
+   ]
+  },
+  {
+   "name": "05 · Data Cleaning & EDA",
+   "level": "Learning / project practice",
+   "items": [
+    "Missing values, duplicates, outliers",
+    "Data cleaning and preprocessing",
+    "Exploratory Data Analysis (EDA)",
+    "Trend and pattern identification"
+   ]
+  },
+  {
+   "name": "06 · Power BI",
+   "level": "Basic practical knowledge",
+   "items": [
+    "Power Query",
+    "DAX",
+    "Dashboard design",
+    "Data storytelling"
+   ]
+  },
+  {
+   "name": "07 · Data Modeling & KPI",
+   "level": "Learning",
+   "items": [
+    "Data modeling",
+    "KPI definition",
+    "Forecasting basics"
+   ]
+  },
+  {
+   "name": "08 · Git / GitHub",
+   "level": "Using for project version control",
+   "items": [
+    "Git fundamentals",
+    "GitHub repositories",
+    "Version control",
+    "Project portfolio"
+   ]
+  },
+  {
+   "name": "09 · PySpark / Big Data",
+   "level": "Learning",
+   "items": [
+    "DataFrames",
+    "Transformations",
+    "Spark SQL"
+   ]
+  },
+  {
+   "name": "10 · AWS",
+   "level": "Learning",
+   "items": [
+    "Amazon S3",
+    "IAM",
+    "EC2",
+    "AWS Lambda"
+   ]
+  }
+ ]
 }
