@@ -8,30 +8,23 @@ const mission=document.createElement("section");mission.className="j-mission";mi
 mission.innerHTML='<div class="j-mission-head"><strong>● STARK-CLASS INTERFACE</strong><span>DD / 2026</span><span>HOLOGRAM SYSTEM ONLINE</span></div><div class="j-mission-title">SELECT YOUR MISSION</div><div class="j-mission-cards"><button class="j-mission-card" data-go="whoami"><span class="j-core"></span><small>01 / ARC CORE</small><b>IDENTITY</b><small>Meet the operator</small></button><button class="j-mission-card" data-go="project"><span class="j-core pink"></span><small>02 / WEB MATRIX</small><b>PROJECTS</b><small>Explore the archive</small></button><button class="j-mission-card" data-go="stack"><span class="j-core green"></span><small>03 / GAMMA CORE</small><b>TECH STACK</b><small>Inspect system tools</small></button></div><div class="j-mission-foot"><span>HOLOGRAPHIC NAVIGATION · DRAG / SCROLL PROJECTS LEFT</span><span>CLICK MODULE TO INITIATE JUMP ↗</span></div>';
 document.body.append(mission);
 const audio=document.getElementById("jarvis-sample"),voice=document.createElement("button");voice.className="j-voice";voice.type="button";voice.textContent="VOICE OFF";voice.setAttribute("aria-pressed","false");document.body.append(voice);
-let voiceOn=false,first=true,last="",voiceChoice=null;
+let voiceOn=false,last="",voiceChoice=null;
 function pickVoice(){if(!("speechSynthesis"in window))return;const v=speechSynthesis.getVoices();voiceChoice=v.find(x=>/Google UK English Male|Microsoft Ryan|Daniel|Alex|Arthur/i.test(x.name))||v.find(x=>/^en-GB/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}
 if("speechSynthesis"in window){pickVoice();speechSynthesis.addEventListener?.("voiceschanged",pickVoice)}
-function say(s){if(!voiceOn||!s||s===last||!("speechSynthesis"in window))return;last=s;audio?.pause();speechSynthesis.cancel();speechSynthesis.resume();const u=new SpeechSynthesisUtterance(s);u.lang="en-US";u.rate=.91;u.pitch=.82;u.volume=1;if(voiceChoice)u.voice=voiceChoice;u.onerror=()=>{voice.textContent="VOICE ERROR";};speechSynthesis.speak(u)}
-voice.addEventListener("click",()=>{voiceOn=!voiceOn;voice.textContent=voiceOn?"VOICE ON":"VOICE OFF";voice.setAttribute("aria-pressed",String(voiceOn));if(!voiceOn){if("speechSynthesis"in window)speechSynthesis.cancel();audio?.pause();return}if(first&&audio){first=false;audio.currentTime=0;audio.play().catch(()=>say("JARVIS voice interface online. At your service."))}else say("JARVIS voice interface online. At your service.")});
+function say(message){if(!voiceOn||!message||!("speechSynthesis"in window))return;const text=String(message).trim();if(!text)return;last=text;audio?.pause();speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang=voiceChoice?.lang||"en-US";utterance.rate=.96;utterance.pitch=.88;utterance.volume=1;if(voiceChoice)utterance.voice=voiceChoice;utterance.onerror=()=>{voice.textContent="VOICE UNAVAILABLE"};speechSynthesis.speak(utterance)}
+voice.addEventListener("click",()=>{voiceOn=!voiceOn;voice.textContent=voiceOn?"VOICE ON":"VOICE OFF";voice.setAttribute("aria-pressed",String(voiceOn));if(!voiceOn){if("speechSynthesis"in window)speechSynthesis.cancel();audio?.pause();return}last="";say("JARVIS voice interface online. At your service.")});
 const faces=[...root.querySelectorAll(".j-face")];let scanCount=0;
 function scanAll(){faces.forEach((f,i)=>{setTimeout(()=>f.classList.add("is-scanning"),i*260);setTimeout(()=>f.classList.remove("is-scanning"),1700+i*260)})}
 scanAll();setInterval(scanAll,4200);
 const contentPromise=fetch("content.json").then(r=>r.json()).catch(()=>null);
 function jumpTo(kind){const wheel=[...document.querySelectorAll(".wheel-item")];let target;if(kind==="whoami")target=wheel.find(b=>b.getAttribute("aria-label")==="whoami");else if(kind==="stack")target=wheel.find(b=>/stack\//i.test(b.getAttribute("aria-label")||""));else target=wheel.find(b=>b.getAttribute("aria-label")!=="whoami"&&!/stack\/|themes\//i.test(b.getAttribute("aria-label")||""));if(target){target.click();target.focus({preventScroll:true});const label=target.getAttribute("aria-label")||kind;say(kind==="project"?"Opening project archive. "+label.replaceAll("-"," "):"Opening "+kind+" module.");scanAll()}else say("Module loading.")}
 mission.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>jumpTo(b.dataset.go)));
-const winbar=document.querySelector(".winbar"),buffer=document.querySelector(".buffer");let lastTitle="";
-async function announce(){const kind=buffer?.dataset.kind||"",title=winbar?.textContent?.trim()||"";if(!kind||title===lastTitle)return;lastTitle=title;scanAll();const data=await contentPromise;let message="";if(kind==="project"&&data){const p=data.projects.find(x=>title.toLowerCase().includes(x.repo.toLowerCase()));message=p?"Opening "+p.repo.replaceAll("-"," ")+". "+p.description:"Opening project "+title.replaceAll("-"," ")}else if(kind==="about")message="Identity module active. Welcome. Devanshu Dwivedi. Computer Science graduate focused on data analytics.";else if(kind==="stack")message="Technology stack module active. Reviewing tools, languages and platforms.";else if(kind==="themes")message="Visual themes module active.";else message=kind+" module active.";say(message)}
-if(winbar&&buffer){const obs=new MutationObserver(announce);obs.observe(winbar,{childList:true,subtree:true,characterData:true});obs.observe(buffer,{attributes:true,attributeFilter:["data-kind"]});document.addEventListener("click",e=>{if(e.target.closest(".wheel-item"))setTimeout(announce,220)})}
-
-// Speak immediately inside the user's click gesture so browser speech is not delayed by fetch.
-document.addEventListener("click", (event) => {
-  if (!voiceOn || !("speechSynthesis" in window)) return;
-  if (event.target.closest(".j-voice, .hero-core, .deck-voice-toggle, .j-mission-card, .hero-module")) return;
-  const control = event.target.closest(".wheel-item, .archive-card, .archive-item, .project-card, .buffer a, .buffer button, .tabline, .den, .bar a, [data-project], [data-repo], [role='button'], a, button");
-  if (!control) return;
-  const raw = (control.getAttribute("aria-label") || control.dataset.repo || control.dataset.project || control.dataset.label || control.textContent || control.title || "").replace(/\s+/g, " ").trim();
-  if (!raw) return;
-  const normalized = raw.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-  const spokenName = raw.replaceAll("-", " ").replaceAll("/", " ");
-  say("Selected " + spokenName + ".");
-}, true);
+// Async content observers removed: they interrupted the immediate click announcement.\n// Speak synchronously in the click gesture: no fetch, timeout or observer delay.
+document.addEventListener("click",(event)=>{
+  if(!voiceOn||!("speechSynthesis"in window))return;
+  if(event.target.closest(".j-voice, .hero-core, .deck-voice-toggle, .j-mission-card, .hero-module"))return;
+  const control=event.target.closest(".wheel-item, .archive-card, .archive-item, .project-card, .buffer a, .buffer button, .tabline, .den, .bar a, [data-project], [data-repo], [role='button'], a, button");
+  if(!control)return;
+  const raw=(control.getAttribute("aria-label")||control.dataset.repo||control.dataset.project||control.dataset.label||control.title||control.textContent||"").replace(/\s+/g," ").trim();
+  if(raw)say("Selected "+raw.replace(/[-_/]+/g," ")+".");
+},true);
