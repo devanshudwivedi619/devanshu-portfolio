@@ -536,7 +536,7 @@ function barView(entry) {
   if (entry.kind === "talks") return [["TALKS", String((content.talks || []).length)], ["COUNTRIES", "4"], ["SINCE", "2022"]];
   if (entry.kind === "more") return [["PROJECTS", String(childrenOf("more").length)]];
   if (entry.kind === "stack") return [["LANGS", String(stack.languages.length)], ["TOOLS", String(stack.tools.length)], ["AI", String(stack.ai?.length ?? 0)]];
-  return [["REPOS", fmt(snapshot.stars.repositoryCount)], ["STARS", fmt(snapshot.stars.total)], ["FOLLOWERS", fmt(snapshot.followers)]];
+  return [["PROJECTS", String(content.projects.length)], ["THEMES", String(themes.length)]];
 }
 
 function open(entry) {
