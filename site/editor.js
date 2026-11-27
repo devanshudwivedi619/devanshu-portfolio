@@ -984,7 +984,7 @@ if (!openEntry) {
     let layer = document.querySelector(".jarvis-wake-sky");
     if (!layer) {
       const style = document.createElement("style");
-      style.textContent = \`
+      style.textContent = `
         .jarvis-wake-sky{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;background:radial-gradient(ellipse at 50% 48%,rgba(13,56,110,.82),rgba(4,11,30,.96) 58%,#02040b 100%);color:#e6fbff;font:700 13px/1.5 ui-monospace,monospace;letter-spacing:.24em;text-align:center}
         .jarvis-wake-sky.is-waking{visibility:visible;animation:jarvisWakeFlash 2.8s ease-out forwards}
         .jarvis-wake-sky:before,.jarvis-wake-sky:after{content:"";position:absolute;width:min(80vw,850px);aspect-ratio:1;border:1px solid rgba(73,221,255,.42);border-radius:50%;box-shadow:0 0 35px #14dfff55,inset 0 0 45px #6554ff35;animation:jarvisOrbit 5s linear infinite}
@@ -998,7 +998,7 @@ if (!openEntry) {
         @keyframes jarvisNebula{to{transform:scale(1.14);filter:blur(26px) hue-rotate(70deg)}}
         @keyframes jarvisStars{0%{transform:scale(.5);opacity:0}30%{opacity:1}100%{transform:scale(1.15);opacity:.55}}
         @media(prefers-reduced-motion:reduce){.jarvis-wake-sky.is-waking{animation:none;opacity:1;visibility:visible}.jarvis-wake-sky:before,.jarvis-wake-sky:after,.jarvis-wake-nebula,.jarvis-wake-stars{animation:none}}
-      \`;
+      `;
       document.head.append(style);
       layer = document.createElement("div");
       layer.className = "jarvis-wake-sky";
