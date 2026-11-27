@@ -68,16 +68,11 @@
     speak(message);
   }
   function handleCommand(raw) {
-    const command = raw.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+    const command = raw.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\\s+/g, " ").trim();
     if (!command) return;
-    if (/\b(home|top|start)\b/.test(command)) return scrollToSection("home","home","Opening home.");
-    if (/\b(profile|about|identity|who am i)\b/.test(command)) return scrollToSection("about","about","Opening your profile.");
-    if (/\b(skill|skills|technology|tech stack)\b/.test(command)) return scrollToSection("skills","skills","Opening your skills.");
-    if (/\b(project|projects|repository|repositories|work)\b/.test(command)) return scrollToSection("projects","projects","Opening your projects.");
-    if (/\b(contact|email|reach me)\b/.test(command)) return scrollToSection("contact","contact","Opening contact details.");
     const project = [...document.querySelectorAll(".project-tile")].find(tile => {
       const label = (tile.dataset.project + " " + tile.textContent).toLowerCase().replace(/[^a-z0-9 ]/g, " ");
-      return command.includes("open") && label.split(/\s+/).some(word => word.length > 4 && command.includes(word));
+      return /\\b(open|kholo)\\b/.test(command) && label.split(/\\s+/).some(word => word.length > 4 && command.includes(word));
     });
     if (project) {
       typeScan("projects");
@@ -85,6 +80,11 @@
       setTimeout(() => window.open("https://github.com/devanshudwivedi619/" + project.dataset.project, "_blank", "noopener"), 300);
       return;
     }
+    if (/\\b(home|top|start|ghar)\\b/.test(command)) return scrollToSection("home","home","Opening home.");
+    if (/\\b(profile|about|identity|who am i)\\b/.test(command)) return scrollToSection("about","about","Opening your profile.");
+    if (/\\b(skill|skills|technology|tech stack)\\b/.test(command)) return scrollToSection("skills","skills","Opening your skills.");
+    if (/\\b(project|projects|repository|repositories|work)\\b/.test(command)) return scrollToSection("projects","projects","Opening your projects.");
+    if (/\\b(contact|email|reach me)\\b/.test(command)) return scrollToSection("contact","contact","Opening contact details.");
     speak("I can open home, profile, skills, projects, or contact. Try one of those commands.");
   }
   function startListening() {
