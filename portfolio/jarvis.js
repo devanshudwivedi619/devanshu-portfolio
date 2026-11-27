@@ -45,7 +45,7 @@
   function speak(message) {
     showToast(message);
     if (!enabled || !synthesis || !message) return;
-    if (recognition) recognition.stop();
+    if (recognition) { try { recognition.stop(); } catch {} }
     synthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.rate = .9;
@@ -71,7 +71,7 @@
     const command = raw.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\\s+/g, " ").trim();
     if (!command) return;
     const project = [...document.querySelectorAll(".project-tile")].find(tile => {
-      const label = (tile.dataset.project + " " + tile.textContent).toLowerCase().replace(/[^a-z0-9 ]/g, " ");
+      const label = tile.dataset.project.toLowerCase().replace(/[^a-z0-9 ]/g, " ");
       return /\\b(open|kholo)\\b/.test(command) && label.split(/\\s+/).some(word => word.length > 4 && command.includes(word));
     });
     if (project) {
