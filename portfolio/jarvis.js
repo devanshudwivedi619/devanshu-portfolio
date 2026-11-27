@@ -76,8 +76,9 @@
     });
     if (project) {
       typeScan("projects");
-      speak("Opening " + project.querySelector("strong").textContent + ".");
-      setTimeout(() => window.open("https://github.com/devanshudwivedi619/" + project.dataset.project, "_blank", "noopener"), 300);
+      project.scrollIntoView({behavior:"smooth",block:"center"});
+      project.focus({preventScroll:true});
+      speak("Selected " + project.querySelector("strong").textContent + ". Tap the project card to open its repository.");
       return;
     }
     if (/\\b(home|top|start|ghar)\\b/.test(command)) return scrollToSection("home","home","Opening home.");
@@ -143,9 +144,13 @@
     setTimeout(() => document.getElementById(card.dataset.target)?.scrollIntoView({behavior:"smooth"}), 450);
   }));
   document.querySelectorAll(".project-tile").forEach(tile => tile.addEventListener("click", () => {
+    window.open("https://github.com/devanshudwivedi619/" + tile.dataset.project, "_blank", "noopener");
     typeScan("projects");
     if (enabled) speak(tile.dataset.speech);
-    setTimeout(() => window.open("https://github.com/devanshudwivedi619/" + tile.dataset.project, "_blank", "noopener"), 450);
+  }));
+  document.querySelectorAll(".project a").forEach(link => link.addEventListener("click", () => {
+    typeScan("projects");
+    if (enabled) speak("Opening GitHub project repository.");
   }));
   document.querySelectorAll("nav a").forEach(link => link.addEventListener("click", () => {
     const section = (link.getAttribute("href") || "").slice(1);
