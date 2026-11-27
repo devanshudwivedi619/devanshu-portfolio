@@ -1012,8 +1012,8 @@ if (!openEntry) {
       style.textContent = `
         .jarvis-wake-sky{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .38s ease,visibility .38s ease;background:linear-gradient(180deg,rgba(2,8,17,.24),rgba(2,12,23,.10) 48%,rgba(1,8,16,.30));color:#c7f7ff;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}
         .jarvis-wake-sky.is-awake{opacity:1;visibility:visible}
-        .jarvis-video-backdrop{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;opacity:.72;filter:saturate(1.45) contrast(1.12);mix-blend-mode:screen;pointer-events:none}
-        .jarvis-wake-sky:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(2,8,17,.12),rgba(2,12,23,.16) 48%,rgba(1,8,16,.2));pointer-events:none}
+        .jarvis-video-backdrop{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;opacity:.86;filter:saturate(1.3) contrast(1.08);mix-blend-mode:normal;pointer-events:none}
+        .jarvis-wake-sky:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(2,8,17,.18),rgba(2,12,23,.22) 48%,rgba(1,8,16,.28));pointer-events:none}
         .jarvis-wake-stars,.jarvis-wake-nebula,.jarvis-wake-orbit,.jarvis-wake-horizon{z-index:2}
         .jarvis-holo-shell{z-index:3}
         .jarvis-wake-stars{position:absolute;inset:0;background-image:radial-gradient(#d7f8ff 1px,transparent 1.6px),radial-gradient(#7de9ff 1px,transparent 1.8px);background-size:97px 97px,163px 163px;background-position:9px 21px,63px 87px;opacity:.58;animation:wakeStars 8s linear infinite}
