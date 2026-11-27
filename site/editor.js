@@ -926,6 +926,7 @@ if (!openEntry) {
   let activeJarvisSpeech = "";
   let lastJarvisSpeech = "";
   let lastJarvisSpeechAt = 0;
+  let welcomeSpoken = false;
   const sayWithDeck = (message) => {
     if (!voiceEnabled || !voiceEngine) return;
     voiceEngine.cancel();
@@ -944,12 +945,34 @@ if (!openEntry) {
     utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); };
     voiceEngine.speak(utterance);
   };
+  const speakWelcome = () => {
+    if (welcomeSpoken || !voiceEngine) return;
+    welcomeSpoken = true;
+    refreshVoices();
+    const utterance = new SpeechSynthesisUtterance("Welcome to the Devanshu Portfolio.");
+    utterance.lang = preferredVoice?.lang || "en-IN";
+    utterance.rate = 0.88;
+    utterance.pitch = 0.7;
+    utterance.volume = 1;
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.onstart = () => coreOrb.classList.add("is-speaking");
+    utterance.onend = () => coreOrb.classList.remove("is-speaking");
+    utterance.onerror = () => {
+      welcomeSpoken = false;
+      coreOrb.classList.remove("is-speaking");
+    };
+    voiceEngine.speak(utterance);
+  };
   const moduleSpeech = {
     about: "Identity protocol activated. I am Devanshu Dwivedi, a Computer Science graduate focused on Data Analytics. I am open to opportunities across India.",
     projects: "Projects archive activated. Explore my analytics work, including sales and customer analytics, IT spend and asset utilization, Superstore sales insights, and hotel booking demand analysis. Each project links to its source repository.",
     stack: "Technology systems online. My practical foundations are Excel, SQL fundamentals, and Power BI. I am actively developing skills in Python, statistics, data cleaning, PySpark, and Amazon Web Services."
   };
-  const greeting = () => sayWithDeck("Welcome to the Devanshu Portfolio.");
+  const greeting = () => {
+    if (welcomeSpoken) return;
+    welcomeSpoken = true;
+    sayWithDeck("Welcome to the Devanshu Portfolio.");
+  };
   coreOrb.addEventListener("click", greeting);
   coreOrb.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -1175,4 +1198,5 @@ sayWithDeck("Listening.")
       }, reduced.matches ? 0 : 850);
     });
   });
+  window.setTimeout(speakWelcome, 450);
 })();
