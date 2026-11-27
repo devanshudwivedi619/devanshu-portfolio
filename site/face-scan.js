@@ -51,7 +51,7 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
     }
     if (signalBox && signal) {
       signalBox.classList.add("is-green");
-      signalBox.querySelector("b").textContent = "GREEN / TRACK LOCKED";
+      signalBox.querySelector("b").textContent = "✓ GREEN / FACE LOCKED";
     }
   }
 
@@ -165,7 +165,7 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
     drawLandmarks(points, false);
     panel.querySelector(".face-scan-screen").classList.add("is-locked");
     panel.querySelector(".face-scan-screen").classList.remove("is-scanning");
-    setStatus("FACE TRACK LOCK // GREEN SIGNAL", true);
+    setStatus("SCAN COMPLETE // GREEN CHECK", true);
     releaseCamera();
     onSignal();
   }
