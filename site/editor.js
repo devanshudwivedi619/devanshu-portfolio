@@ -932,23 +932,26 @@ if (!openEntry) {
   const sayWithDeck = (message, onDone) => {
     if (faceScanActive) return;
     if (!voiceEnabled || !voiceEngine) {
+      hideWakeSky();
       onDone?.();
       return;
     }
     voiceEngine.cancel();
+    stopListening();
+    if (jarvisAwake) showWakeSky("AETHER RESPONDING", message);
     refreshVoices();
     activeJarvisSpeech = message;
     lastJarvisSpeech = message;
     lastJarvisSpeechAt = Date.now();
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = preferredVoice?.lang || "en-IN";
-    utterance.rate = 1.08;
-    utterance.pitch = 0.7;
+    utterance.rate = 1.02;
+    utterance.pitch = 0.72;
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
     utterance.onstart = () => coreOrb.classList.add("is-speaking");
-    utterance.onend = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); onDone?.(); };
-    utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); onDone?.(); };
+    utterance.onend = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); hideWakeSky(); startListening(); onDone?.(); };
+    utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); hideWakeSky(); startListening(); onDone?.(); };
     voiceEngine.speak(utterance);
   };
   const faceScanner = createFaceScanner({
@@ -1006,10 +1009,103 @@ if (!openEntry) {
       greeting();
     }
   });
-  // Full-screen Jarvis wake overlay removed; keep voice actions without creating a window.
-  const showWakeSky = () => {};
-  const hideWakeSky = () => {};
-
+  // Show the orange GIF hologram only while Jarvis processes, scans, or speaks a response.
+  let processLayer = null, processCanvas = null, processContext = null, processImage = null;
+  let processRAF = 0, processLastFrame = 0;
+  const processStyle = document.createElement("style");
+  processStyle.textContent =
+    ".jarvis-process-holo{position:fixed;inset:0;z-index:99998;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;background:radial-gradient(ellipse at 50% 45%,rgba(8,22,38,.90),rgba(2,7,15,.97) 72%);color:#d9f8ff;font:10px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.12em}" +
+    ".jarvis-process-holo.is-active{opacity:1;visibility:visible}" +
+    ".jarvis-process-grid{position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.9%,#57dfff12 50%,transparent 50.1%),linear-gradient(0deg,transparent 49.9%,#57dfff12 50%,transparent 50.1%),radial-gradient(circle at 50% 45%,transparent 0 18%,#35dbff15 18.1% 18.3%,transparent 18.4% 34%,#35dbff12 34.1% 34.3%,transparent 34.4%);animation:processGrid 15s linear infinite}" +
+    ".jarvis-process-sweep{position:absolute;left:0;right:0;top:-20%;height:22%;background:linear-gradient(transparent,#52eaff14,transparent);animation:processSweep 3.8s linear infinite}" +
+    ".jarvis-process-shell{position:relative;width:min(1180px,96vw);height:min(86vh,850px);display:grid;grid-template-rows:34px 1fr 42px;border:1px solid #47d9ff56;background:linear-gradient(145deg,#071321bb,#020913c9);box-shadow:0 0 50px #14cfff1b,inset 0 0 40px #05d9ff0b;clip-path:polygon(0 0,98% 0,100% 4%,100% 100%,2% 100%,0 96%)}" +
+    ".jarvis-process-head,.jarvis-process-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px;color:#59ddf2;font-size:9px;letter-spacing:.16em;border-bottom:1px solid #48d9ff2c}" +
+    ".jarvis-process-head b{color:#86ffbb;font-weight:400}" +
+    ".jarvis-process-body{display:grid;grid-template-columns:minmax(130px,1fr) minmax(300px,2.2fr) minmax(130px,1fr);align-items:center;gap:10px;padding:12px}" +
+    ".jarvis-process-rail{height:100%;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:12px;border:1px solid #43b6d532;background:linear-gradient(180deg,#07152688,#04101d66);color:#75bacb;font-size:8px}" +
+    ".jarvis-process-rail strong{display:block;margin-bottom:5px;color:#b2f6ff;font-weight:400}" +
+    ".jarvis-process-meter{height:3px;background:#15334a;overflow:hidden}.jarvis-process-meter i{display:block;height:100%;width:64%;background:linear-gradient(90deg,#ff7a21,#ffce72);box-shadow:0 0 12px #ff992d;animation:processMeter 1.15s ease-in-out infinite alternate}" +
+    ".jarvis-process-core{position:relative;display:grid;place-items:center;min-height:0;height:100%;overflow:hidden;border:1px solid #47d9ff35;background:radial-gradient(ellipse at center,#10253a77,transparent 70%)}" +
+    ".jarvis-process-core:before,.jarvis-process-core:after{content:'';position:absolute;inset:7%;border:1px solid #4bdfff23;border-radius:50%;transform:rotateX(70deg) rotateZ(18deg);animation:processOrbit 13s linear infinite}" +
+    ".jarvis-process-core:after{inset:14% 3%;transform:rotateX(74deg) rotateZ(-34deg);animation-direction:reverse;border-color:#ffc2633b}" +
+    ".jarvis-process-canvas{position:relative;z-index:1;width:min(68vh,620px,100%);height:min(68vh,620px,100%);object-fit:contain;filter:drop-shadow(0 0 26px #ff9b32a8);animation:processFloat 3.4s ease-in-out infinite}" +
+    ".jarvis-process-title{position:absolute;z-index:2;left:12px;right:12px;bottom:14px;text-align:center;color:#e0faff;text-shadow:0 0 14px #5deaff8c;font:600 10px ui-monospace,monospace;letter-spacing:.2em}" +
+    ".jarvis-process-title small{display:block;margin-top:5px;color:#ffce7b;font-size:8px;font-weight:400;letter-spacing:.14em}" +
+    ".jarvis-process-foot{border-top:1px solid #48d9ff2c;border-bottom:0;color:#7295a8;font-size:8px}" +
+    ".jarvis-process-source{position:fixed;left:-9999px;top:0;width:540px;height:540px;opacity:0;pointer-events:none}" +
+    "@keyframes processGrid{to{transform:rotate(1deg) scale(1.08);opacity:.55}}@keyframes processSweep{to{top:105%}}@keyframes processMeter{to{width:92%}}@keyframes processOrbit{to{rotate:360deg}}@keyframes processFloat{50%{transform:translateY(-8px) scale(1.025)}}" +
+    "@media(max-width:700px){.jarvis-process-shell{height:88vh;width:96vw}.jarvis-process-body{grid-template-columns:1fr;grid-template-rows:auto minmax(260px,1fr) auto;gap:6px;padding:7px}.jarvis-process-rail{flex-direction:row;align-items:center;justify-content:space-around;gap:6px;padding:7px;font-size:6px}.jarvis-process-rail>div{flex:1}.jarvis-process-canvas{width:min(57vh,90vw);height:min(57vh,90vw)}.jarvis-process-head,.jarvis-process-foot{padding:0 9px;font-size:7px}.jarvis-process-title{font-size:8px}}" +
+    "@media(prefers-reduced-motion:reduce){.jarvis-process-holo *{animation:none!important;transition:none!important}}";
+  document.head.append(processStyle);
+  const ensureProcessLayer = () => {
+    if (processLayer) return;
+    processLayer = document.createElement("div");
+    processLayer.className = "jarvis-process-holo";
+    processLayer.setAttribute("aria-hidden", "true");
+    processLayer.innerHTML = '<div class="jarvis-process-grid"></div><div class="jarvis-process-sweep"></div><section class="jarvis-process-shell"><header class="jarvis-process-head"><span>DEVANSHU // AETHER PROCESSING</span><b id="process-status">COMMAND ACTIVE</b></header><div class="jarvis-process-body"><aside class="jarvis-process-rail"><div><strong>LOCAL ANALYSIS</strong><div class="jarvis-process-meter"><i></i></div></div><div>VOICE INPUT<br><strong id="process-command">READY</strong></div></aside><div class="jarvis-process-core"><canvas class="jarvis-process-canvas" aria-label="Orange animated hologram"></canvas><div class="jarvis-process-title" id="process-title"><span id="process-main">AETHER // RESPONDING</span><small id="process-detail">SIMULATED HOLOGRAPHIC VISUAL</small></div></div><aside class="jarvis-process-rail"><div><strong>DATA STREAM</strong><span id="process-stream">PROJECT / THEME / SKILLS</span></div><div><strong>STATUS</strong><span>LOCAL PORTFOLIO RESPONSE</span></div></aside></div><footer class="jarvis-process-foot"><span>ORANGE CORE ONLINE · BACKGROUND REMOVED</span><span>NO EXTERNAL SYSTEM ACCESS</span></footer></section>';
+    document.body.append(processLayer);
+    processCanvas = processLayer.querySelector("canvas");
+    processContext = processCanvas.getContext("2d", { willReadFrequently: true });
+    processImage = new Image();
+    processImage.className = "jarvis-process-source";
+    processImage.alt = "";
+    processImage.setAttribute("aria-hidden", "true");
+    processImage.src = new URL("../download.gif", import.meta.url).href;
+    document.body.append(processImage);
+    processImage.addEventListener("load", () => { if (processLayer?.classList.contains("is-active")) drawOrangeHologram(); });
+  };
+  const drawOrangeHologram = (now = 0) => {
+    if (!processLayer?.classList.contains("is-active") || document.hidden || !processImage?.complete || !processImage.naturalWidth) return;
+    if (now - processLastFrame >= 40) {
+      processLastFrame = now;
+      const size = 480;
+      if (processCanvas.width !== size || processCanvas.height !== size) { processCanvas.width = size; processCanvas.height = size; }
+      processContext.clearRect(0, 0, size, size);
+      processContext.drawImage(processImage, 90, 25, 360, 360, 0, 0, size, size);
+      const imageData = processContext.getImageData(0, 0, size, size);
+      const pixels = imageData.data;
+      for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+        const orange = r > g * 1.04 && g > b * 1.04 && r > 42;
+        const glow = r > 225 && g > 190 && b > 145 && r - b < 105;
+        if (orange) {
+          pixels[i] = 255; pixels[i + 1] = Math.min(214, g + 24); pixels[i + 2] = Math.min(100, b * .58);
+          pixels[i + 3] = Math.min(255, Math.max(0, (r + g) / 1.45));
+        } else if (glow) pixels[i + 3] = Math.min(230, (r + g + b) / 3);
+        else pixels[i + 3] = 0;
+      }
+      processContext.putImageData(imageData, 0, 0);
+    }
+    processRAF = requestAnimationFrame(drawOrangeHologram);
+  };
+  const showWakeSky = (state = "PROCESSING COMMAND", commandText = "PORTFOLIO ACTION") => {
+    if (!/PROCESS|RESPOND|SCAN|COMPLETE|COMMAND ACCEPTED/i.test(state)) return;
+    ensureProcessLayer();
+    const status = processLayer.querySelector("#process-status");
+    const commandNode = processLayer.querySelector("#process-command");
+    const mainTitle = processLayer.querySelector("#process-main");
+    const detail = processLayer.querySelector("#process-detail");
+    const stream = processLayer.querySelector("#process-stream");
+    if (status) status.textContent = state;
+    if (commandNode) commandNode.textContent = commandText.toUpperCase();
+    if (mainTitle) mainTitle.textContent = state.includes("SCAN") ? "AETHER // SCANNING" : "AETHER // RESPONDING";
+    if (detail) detail.textContent = commandText.replace(/[<>]/g, "").toUpperCase();
+    if (stream) stream.textContent = state.includes("SCAN") ? "LANDMARK TRACE" : "PROJECT / THEME / SKILLS";
+    clearTimeout(processLayer._hideTimer);
+    processLayer._visibleUntil = Date.now() + 2000;
+    processLayer.classList.add("is-active");
+    cancelAnimationFrame(processRAF);
+    processRAF = requestAnimationFrame(drawOrangeHologram);
+  };
+  const hideWakeSky = (immediate = false) => {
+    if (!processLayer) return;
+    clearTimeout(processLayer._hideTimer);
+    const delay = immediate ? 0 : Math.max(0, (processLayer._visibleUntil || 0) - Date.now());
+    processLayer._hideTimer = setTimeout(() => {
+      processLayer.classList.remove("is-active");
+      cancelAnimationFrame(processRAF);
+    }, delay);
+  };
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognizer = null;
   let listening = false;
@@ -1026,6 +1122,11 @@ if (!openEntry) {
     try { recognizer.stop(); } catch {}
     listening = false;
   };
+  const finishCommand = () => {
+    voiceToggle.textContent = jarvisAwake ? "AWAKE // LISTENING" : "ASLEEP // WAKE WORD";
+    hideWakeSky();
+    startListening();
+  };
   if (SpeechRecognition) {
     recognizer = new SpeechRecognition();
     recognizer.lang = "en-IN";
@@ -1038,49 +1139,64 @@ if (!openEntry) {
       .replace(/\s+/g, " ")
       .trim();
     const wakePattern = /\b(?:wake\s+(?:up\s+)?(?:hey\s+)?(?:jarvis|jervis|travis|charvis|service)|(?:jarvis|jervis|travis|charvis)\s+wake\s+up|(?:utho|uttho|uthho)\s+(?:jarvis|jervis|travis|charvis))\b/i;
+    const projectTitles = new Map([
+      ["sales-and-customer-analytics-dashboard", "Sales and Customer Analytics Dashboard"],
+      ["it-spend-and-asset-utilization-dashboard", "IT Spend and Asset Utilization Dashboard"],
+      ["superstore-sales-and-profit-insights", "Superstore Sales and Profit Insights"],
+      ["hotel-booking-demand-analysis", "Hotel Booking Demand Analysis"],
+      ["business-intelligence-sales-dashboard", "Business Intelligence Sales Dashboard"],
+      ["stack-overflow-developer-survey-dashboard", "Stack Overflow Developer Survey Dashboard"],
+    ]);
+    const projectTitle = (entry) => projectTitles.get(entry.id) || entry.label.replaceAll("-", " ");
+    let lastMentionedTheme = currentTheme;
     const findProject = (command) => {
-      const stop = new Set(["project", "projects", "section", "repo", "repository", "repositories", "open", "show", "display", "view", "please", "me", "my", "the", "a", "an", "and", "to", "for", "of", "with", "dashboard", "data"]);
+      const stop = new Set(["project","projects","section","repo","repository","repositories","open","show","display","view","please","me","my","the","a","an","and","to","for","of","with","dashboard","data","wala","dikhao","kholo","explain","describe"]);
+      const normalizedKey = key(command);
       const candidates = entries.filter(entry => entry.kind === "project").map(entry => {
-        const words = normalizeVoice([entry.id, entry.label, entry.data?.repo, entry.data?.title].filter(Boolean).join(" "))
-          .split(" ").filter(word => word.length > 2 && !stop.has(word));
-        const matched = [...new Set(words)].filter(word => command.includes(word));
-        return { entry, score: matched.length };
-      }).filter(candidate => candidate.score > 0).sort((a,b) => b.score - a.score);
-      if (!candidates.length) return null;
-      if (candidates.length > 1 && candidates[0].score === candidates[1].score) return null;
-      return candidates[0].entry;
+        const title = projectTitle(entry);
+        const phrase = key(title);
+        const words = [...new Set(normalizeVoice([entry.id, entry.label, title, entry.data?.repo].filter(Boolean).join(" ")).split(" ").filter(word => word.length > 2 && !stop.has(word)))];
+        const matched = words.filter(word => command.split(" ").includes(word));
+        const score = (phrase.length > 7 && normalizedKey.includes(phrase) ? 100 : 0) + matched.reduce((sum, word) => sum + Math.min(word.length, 8), 0);
+        return { entry, score };
+      }).filter(item => item.score > 0).sort((a,b) => b.score - a.score);
+      if (!candidates.length || (candidates.length > 1 && candidates[0].score === candidates[1].score)) return null;
+      const projectIntent = /\b(?:project|projects|repo|repository|dashboard|open|show|display|view|explain|describe|tell me about|dikhao|kholo)\b/.test(command);
+      return candidates[0].score >= 8 || projectIntent ? candidates[0].entry : null;
     };
+    const themeEntry = entries.find(entry => entry.kind === "themes");
     const parseCommand = (raw) => {
       const command = normalizeVoice(raw);
       if (/\b(?:scan|inspect|check|analyze|analyse)\b.*\b(?:face|eyes|nose|cheeks|biometric)\b|\bface\s+scan(?:ning)?\b/.test(command)) {
         return { target: chooseEntry("about"), dest: "face-scan" };
       }
-      const themeEntry = entries.find(entry => entry.kind === "themes");
-      const themeIntent = /\b(themes?|color schemes?|colorschemes?|palette|appearance|select|choose|apply|set)\b/.test(command);
-      // Voice transcripts may split a single theme name (for example, “Blackmoney”)
-      // into separate words. Compare normalized names and prefer the most specific match.
-      const themeName = themeIntent
-        ? [...palettes.keys()].sort((a, b) => b.length - a.length).find(name => key(command).includes(name))
-        : null;
-      if (themeName && themeEntry) return { target: themeEntry, dest: "theme", themeName };
-      if (/\b(themes?|color schemes?|colorschemes?|palette|appearance)\b/.test(command) && themeEntry) {
-        return { target: themeEntry, dest: "themes" };
+      const themeIntent = /\b(themes?|color schemes?|colorschemes?|palette|appearance|select|choose|apply|use|switch|set|activate|describe|explain)\b/.test(command);
+      const applyThemeIntent = /\b(?:apply|use|switch|set|activate|change)\b/.test(command);
+      const themeName = [...palettes.keys()].sort((a,b)=>b.length-a.length).find(name => key(command).includes(name));
+      if (themeName && themeEntry) {
+        lastMentionedTheme = themeName;
+        return { target: themeEntry, dest: applyThemeIntent ? "theme" : "theme-info", themeName };
       }
-      const stackOverflow = /\bstack overflow\b/.test(command);
-      const stackIntent = !stackOverflow && /\b(tech stack|stack|skills|skill|technology|technical skills|excel|sql|power bi|python|pyspark|statistics|aws)\b/.test(command);
-      if (stackIntent) return { target: chooseEntry("stack"), dest: "stack" };
+      if (applyThemeIntent && /\b(?:this|that|current)\s+theme\b|\bapply\s+it\b/.test(command) && themeEntry) {
+        return { target: themeEntry, dest: "theme", themeName: lastMentionedTheme || currentTheme };
+      }
+      if (themeIntent && themeEntry) return { target: themeEntry, dest: "themes" };
+
+      const stackOverflow = /\bstack\s+overflow\b|\bstackoverflow\b|\bdeveloper\s+survey\b|\bstack\s+(?:project|dashboard|wala)\b|\bproject\s+stack\b/.test(command);
+      if (stackOverflow) {
+        const survey = entries.find(entry => entry.id === "stack-overflow-developer-survey-dashboard");
+        if (survey) return { target: survey, dest: "project" };
+      }
+      const techStack = /\b(?:tech(?:nology)?\s+stack|skill(?:s)?|excel|sql|power bi|python|pyspark|statistics|aws)\b/.test(command);
+      if (techStack || (/\bstack\b/.test(command) && !/\bproject\b/.test(command))) {
+        return { target: chooseEntry("stack"), dest: "stack" };
+      }
       if (/\b(identity|profile|about|background|education|who am i|who are you)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
       if (/\b(home|start|top)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
       if (/\b(contact|email|reach me)\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
       const project = findProject(command);
       if (project) return { target: project, dest: "project" };
-      if (stackOverflow) {
-        const survey = entries.find(entry => entry.id === "stack-overflow-developer-survey-dashboard");
-        if (survey) return { target: survey, dest: "project" };
-      }
-      if (/\b(project|projects|archive|repository|repositories|work)\b/.test(command)) {
-        return { target: chooseEntry("projects"), dest: "projects" };
-      }
+      if (/\b(project|projects|archive|repository|repositories|work)\b/.test(command)) return { target: chooseEntry("projects"), dest: "projects" };
       return null;
     };
     recognizer.onstart = () => {
@@ -1099,15 +1215,7 @@ if (!openEntry) {
       const result = event.results[event.results.length - 1];
       const alternatives = Array.from(result, item => item.transcript);
       const normalize = value => value.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
-      if (!result.isFinal) {
-        const liveTranscript = alternatives[0] || "";
-        if (!jarvisAwake && wakePattern.test(normalize(liveTranscript))) {
-          showWakeSky("WAKE WORD DETECTED", liveTranscript.toUpperCase());
-        } else if (jarvisAwake && liveTranscript) {
-          showWakeSky("LISTENING // HEARING COMMAND", liveTranscript.toUpperCase());
-        }
-        return;
-      }
+      if (!result.isFinal) return;
       const stopCommand = alternatives.some(text => /\b(?:stop(?:ped)?(?:\s+(?:talking|speaking))?|silence|be quiet|stay quiet|shut up|cancel speech)\b|\bjarvis\s+(?:stop(?:ped)?|be quiet|shut up)\b|\b(?:stop(?:ped)?|shut up)\s+jarvis\b/i.test(normalize(text)));
       if (stopCommand) {
         voiceEngine?.cancel();
@@ -1129,12 +1237,10 @@ if (!openEntry) {
         jarvisAwake = true;
         voiceToggle.textContent = "AWAKE // LISTENING";
         voiceToggle.setAttribute("aria-label", "Jarvis is awake and listening for English commands");
-        showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND");
         if (!cleaned) {
           sayWithDeck("Command accepted.", finishCommand);
           return;
         }
-        sayWithDeck("Command accepted.");
         routedAlternatives = [cleaned];
       } else if (!jarvisAwake || !result.isFinal) {
         return;
@@ -1173,10 +1279,10 @@ if (!openEntry) {
       const wheelEntry = parent || target;
       const index = items.findIndex(item => item.entry === wheelEntry);
       if (index >= 0) wheel.select(index);
-      const label = dest === "face-scan" ? "FACE SCAN" : dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "themes" ? "THEMES" : dest === "theme" ? themeName.toUpperCase() + " THEME" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
+      const label = dest === "face-scan" ? "FACE SCAN" : dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "themes" ? "THEMES" : dest === "theme" || dest === "theme-info" ? themeName.toUpperCase() + " THEME" : dest === "contact" ? "CONTACT" : dest === "project" ? projectTitle(target) : target.label.replaceAll("-", " ");
       voiceToggle.textContent = "COMMAND ACCEPTED";
       showWakeSky("PROCESSING COMMAND", label);
-      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest === "theme" ? "themes" : dest === "face-scan" ? "face" : dest } }));
+      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest === "theme" || dest === "theme-info" ? "themes" : dest === "face-scan" ? "face" : dest } }));
       const gate = document.createElement("div");
       gate.className = "hero-jump";
       gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>COMMAND ACCEPTED</p><small>OPENING // ' + label.toUpperCase() + '</small>';
@@ -1185,13 +1291,16 @@ if (!openEntry) {
       if (dest === "stack") details = moduleSpeech.stack;
       else if (dest === "about") details = moduleSpeech.about;
       else if (dest === "projects") details = moduleSpeech.projects;
-      else if (dest === "themes") details = "The Themes panel is open. Available color themes are " + themes.filter(theme => theme.included).map(theme => theme.name).join(", ") + ".";
+      else if (dest === "themes") details = "The Themes panel is open. Available color themes are " + themes.filter(theme => theme.included).map(theme => theme.name).join(", ") + ". Say apply followed by a theme name to switch.";
       else if (dest === "theme") {
         applyTheme(themeName, true);
         details = "The " + themeName + " color theme is applied. The Themes panel is open.";
+      } else if (dest === "theme-info") {
+        const theme = palettes.get(themeName);
+        details = "The " + themeName + " theme uses a " + (theme?.light ? "light" : "dark") + " background with accent color " + (theme?.accent || "from its palette") + ". Say apply " + themeName + " theme to switch.";
       } else if (dest === "contact") details = "Your email and profile links are in the identity panel.";
       else if (dest === "face-scan") details = "The holographic face landmark scan is ready. Please allow camera access.";
-      else if (dest === "project") details = target.data?.description || "The selected project is now open in the portfolio window.";
+      else if (dest === "project") details = (target.data?.description || "The selected project is open.") + (target.data?.stack?.length ? " Technology stack: " + target.data.stack.join(", ") + "." : "");
       const response = dest === "theme" ? "Command accepted. Applying " + themeName + ". " + details : dest === "face-scan" ? "" : "Command accepted. Opening " + label + ". " + details;
       window.setTimeout(() => {
         if (dest === "face-scan") {
@@ -1240,7 +1349,6 @@ if (!openEntry) {
       return;
     }
     voiceToggle.textContent = SpeechRecognition ? "ASLEEP // WAKE WORD" : "VOICE ONLY";
-    if (SpeechRecognition) showWakeSky("STANDBY // WAKE WORD", "SAY WAKE UP JARVIS OR UTHO JARVIS");
     window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: "about" } }));
     if (SpeechRecognition) {
       greetOnStart = true;
