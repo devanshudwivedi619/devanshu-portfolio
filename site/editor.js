@@ -956,10 +956,14 @@ if (!openEntry) {
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
     utterance.onstart = () => coreOrb.classList.add("is-speaking");
-    utterance.onend = () => coreOrb.classList.remove("is-speaking");
+    utterance.onend = () => {
+      coreOrb.classList.remove("is-speaking");
+      startListening();
+    };
     utterance.onerror = () => {
       welcomeSpoken = false;
       coreOrb.classList.remove("is-speaking");
+      startListening();
     };
     voiceEngine.speak(utterance);
   };
@@ -1040,6 +1044,7 @@ if (!openEntry) {
       .replace(/[^a-z0-9\s]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
+    const wakePattern = /\bwake\s+(?:up\s+)?(?:hey\s+)?(?:jarvis|jervis|travis|charvis|service)\b|\b(?:jarvis|jervis|travis|charvis)\s+wake\s+up\b/i;
     const findProject = (command) => {
       const stop = new Set(["project", "projects", "section", "repo", "repository", "repositories", "open", "show", "display", "view", "please", "me", "my", "the", "a", "an", "and", "to", "for", "of", "with", "dashboard", "data"]);
       const candidates = entries.filter(entry => entry.kind === "project").map(entry => {
@@ -1104,10 +1109,10 @@ if (!openEntry) {
         voiceToggle.setAttribute("aria-label", "Jarvis is asleep and waiting for the Wake up Jarvis phrase");
         return;
       }
-      const wakeTranscript = alternatives.find(text => /\bwake\s+up\s+jarvis\b|\bwake\s+jarvis\b|\bjarvis\s+wake\s+up\b/i.test(normalize(text)));
+      const wakeTranscript = alternatives.find(text => wakePattern.test(normalize(text)));
       let routedAlternatives = alternatives;
       if (wakeTranscript) {
-        const cleaned = normalize(wakeTranscript).replace(/\bwake\s+up\s+jarvis\b|\bwake\s+jarvis\b|\bjarvis\s+wake\s+up\b/ig, " ").replace(/\s+/g, " ").trim();
+        const cleaned = normalize(wakeTranscript).replace(wakePattern, " ").replace(/\s+/g, " ").trim();
         if (!jarvisAwake) {
           jarvisAwake = true;
           voiceToggle.textContent = "AWAKE // LISTENING";
