@@ -949,7 +949,7 @@ if (!openEntry) {
     projects: "Projects archive activated. Explore my analytics work, including sales and customer analytics, IT spend and asset utilization, Superstore sales insights, and hotel booking demand analysis. Each project links to its source repository.",
     stack: "Technology systems online. My practical foundations are Excel, SQL fundamentals, and Power BI. I am actively developing skills in Python, statistics, data cleaning, PySpark, and Amazon Web Services."
   };
-  const greeting = () => sayWithDeck("Good day. All systems are online. Welcome to Devanshu Dwivedi's portfolio. Select a mission to explore identity, projects, or technology stack.");
+  const greeting = () => sayWithDeck("Welcome to the Devanshu Portfolio.");
   coreOrb.addEventListener("click", greeting);
   coreOrb.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -976,7 +976,7 @@ if (!openEntry) {
     recognizer = new SpeechRecognition();
     recognizer.lang = "en-IN";
     recognizer.continuous = true;
-    recognizer.interimResults = false;
+    recognizer.interimResults = true;
     recognizer.maxAlternatives = 5;
     let wakeArmed = false;
     const normalizeVoice = (value) => value.toLowerCase()
@@ -1031,22 +1031,24 @@ if (!openEntry) {
       voiceToggle.setAttribute("aria-label", "Jarvis is listening for English commands");
       if (greetOnStart) {
         greetOnStart = false;
-        sayWithDeck("Jarvis online and listening. Tell me which portfolio section or project to open.");
+sayWithDeck("Welcome to the Devanshu Portfolio.")
       }
     };
     recognizer.onresult = (event) => {
       const result = event.results[event.results.length - 1];
-      if (!result.isFinal) return;
       const alternatives = Array.from(result, item => item.transcript);
       const normalize = value => value.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
-      const stopCommand = alternatives.some(text => /\b(?:hey\s+)?jarvis\s+stop\b|\bstop\s+jarvis\b|\bstop\b|\bsilence\b|\bbe quiet\b|\bcancel speech\b/i.test(normalize(text)));
+      const stopCommand = alternatives.some(text => /\b(?:stop(?:ped)?(?:\s+(?:talking|speaking))?|silence|be quiet|stay quiet|shut up|cancel speech)\b|\bjarvis\s+(?:stop(?:ped)?|be quiet|shut up)\b|\b(?:stop(?:ped)?|shut up)\s+jarvis\b/i.test(normalize(text)));
       if (stopCommand) {
         voiceEngine?.cancel();
         activeJarvisSpeech = "";
+        lastJarvisSpeech = "";
         coreOrb.classList.remove("is-speaking");
         voiceToggle.textContent = "LISTENING";
+        if (result.isFinal) wakeArmed = false;
         return;
       }
+      if (!result.isFinal) return;
       const activeText = normalize(activeJarvisSpeech || (Date.now() - lastJarvisSpeechAt < 4500 ? lastJarvisSpeech : ""));
       const isEcho = text => {
         const heard = normalize(text);
@@ -1064,7 +1066,7 @@ if (!openEntry) {
       const action = alternatives.map(parseCommand).find(item => item?.target || item?.wakeOnly);
       if (action?.wakeOnly) {
         voiceToggle.textContent = "LISTENING";
-        sayWithDeck("Yes sir. What would you like me to open?");
+sayWithDeck("Listening.")
         return;
       }
       if (!action?.target) {
