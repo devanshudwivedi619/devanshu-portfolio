@@ -975,13 +975,13 @@ if (!openEntry) {
     recognizer.maxAlternatives = 5;
     let wakeArmed = false;
     const normalizeVoice = (value) => value.toLowerCase()
-      .replace(/[^a-z0-9\\s]/g, " ")
-      .replace(/\\s+/g, " ")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
       .trim();
     const findProject = (command) => {
       const stop = new Set(["project", "projects", "section", "repo", "repository", "repositories", "open", "show", "display", "view", "please", "me", "my", "the", "a", "an", "and", "to", "for", "of", "with", "dashboard", "data"]);
       const candidates = entries.filter(entry => entry.kind === "project").map(entry => {
-        const words = normalizeVoice([entry.id, entry.label, entry.data?.repo, entry.data?.title, entry.data?.description].filter(Boolean).join(" "))
+        const words = normalizeVoice([entry.id, entry.label, entry.data?.repo, entry.data?.title].filter(Boolean).join(" "))
           .split(" ").filter(word => word.length > 2 && !stop.has(word));
         const matched = [...new Set(words)].filter(word => command.includes(word));
         return { entry, score: matched.length };
@@ -992,24 +992,24 @@ if (!openEntry) {
     };
     const parseCommand = (raw) => {
       let command = normalizeVoice(raw);
-      if (/\\bhey jarvis\\b/.test(command)) {
+      if (/\bhey jarvis\b/.test(command)) {
         wakeArmed = true;
-        command = command.replace(/\\bhey jarvis\\b/g, " ").replace(/\\s+/g, " ").trim();
+        command = command.replace(/\bhey jarvis\b/g, " ").replace(/\s+/g, " ").trim();
       }
       if (!command && wakeArmed) return { wakeOnly: true };
-      const stackOverflow = /\\bstack overflow\\b/.test(command);
-      const stackIntent = !stackOverflow && /\\b(tech stack|stack|skills|skill|technology|technical skills)\\b/.test(command);
+      const stackOverflow = /\bstack overflow\b/.test(command);
+      const stackIntent = !stackOverflow && /\b(tech stack|stack|skills|skill|technology|technical skills)\b/.test(command);
       if (stackIntent) return { target: chooseEntry("stack"), dest: "stack" };
-      if (/\\b(identity|profile|about|who am i)\\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
-      if (/\\b(home|start|top)\\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
-      if (/\\b(contact|email|reach me)\\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
+      if (/\b(identity|profile|about|who am i)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\b(home|start|top)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\b(contact|email|reach me)\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
       const project = findProject(command);
       if (project) return { target: project, dest: "project" };
-      if (/\\bstack overflow\\b/.test(command)) {
+      if (/\bstack overflow\b/.test(command)) {
         const survey = entries.find(entry => entry.id === "stack-overflow-developer-survey-dashboard");
         if (survey) return { target: survey, dest: "project" };
       }
-      if (/\\b(project|projects|archive|repository|repositories|work)\\b/.test(command)) {
+      if (/\b(project|projects|archive|repository|repositories|work)\b/.test(command)) {
         return { target: chooseEntry("projects"), dest: "projects" };
       }
       return null;
