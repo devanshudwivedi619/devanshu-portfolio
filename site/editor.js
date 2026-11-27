@@ -878,7 +878,7 @@ if (!openEntry) {
   deck.className = "hero-deck";
   deck.setAttribute("aria-label", "Futuristic portfolio command deck");
   deck.innerHTML = `
-    <div class="deck-top"><span class="deck-live"><i></i> STARK-CLASS INTERFACE</span><span class="deck-coordinate">DD / 2026</span><button class="deck-voice-toggle" type="button" aria-pressed="true">VOICE ON</button></div>
+    <div class="deck-top"><span class="deck-live"><i></i> STARK-CLASS INTERFACE</span><span class="deck-coordinate">DD / 2026</span></div>
     <div class="deck-title">SELECT YOUR <b>MISSION</b></div>
     <div class="hero-orbits" aria-hidden="true">
       <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
@@ -894,10 +894,16 @@ if (!openEntry) {
   stage.append(deck);
 
   const voiceEngine = window.speechSynthesis;
-  let voiceEnabled = true;
+  let voiceEnabled = false;
   let voiceList = [];
   let preferredVoice = null;
-  const voiceToggle = deck.querySelector(".deck-voice-toggle");
+  const voiceToggle = document.createElement("button");
+  voiceToggle.className = "deck-voice-toggle";
+  voiceToggle.type = "button";
+  voiceToggle.textContent = "VOICE OFF";
+  voiceToggle.setAttribute("aria-pressed", "false");
+  voiceToggle.setAttribute("aria-label", "Turn portfolio voice on");
+  document.body.append(voiceToggle);
   const coreOrb = deck.querySelector(".hero-core");
   const refreshVoices = () => {
     voiceList = voiceEngine ? voiceEngine.getVoices() : [];
@@ -948,6 +954,7 @@ if (!openEntry) {
     voiceEnabled = !voiceEnabled;
     voiceToggle.textContent = voiceEnabled ? "VOICE ON" : "VOICE OFF";
     voiceToggle.setAttribute("aria-pressed", String(voiceEnabled));
+    voiceToggle.setAttribute("aria-label", voiceEnabled ? "Turn portfolio voice off" : "Turn portfolio voice on");
     if (!voiceEnabled) {
       voiceEngine?.cancel();
       coreOrb.classList.remove("is-speaking");
