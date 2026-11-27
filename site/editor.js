@@ -883,7 +883,7 @@ if (!openEntry) {
     <div class="deck-title">SELECT YOUR <b>MISSION</b></div>
     <div class="hero-orbits" aria-hidden="true">
       <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-      <div class="hero-core"><span class="core-light"></span><small>AI</small></div>
+      <div class="hero-core"><canvas class="deck-holo-mini" aria-hidden="true"></canvas></div>
       <span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span><span class="orbit-dot dot-three"></span>
     </div>
     <div class="hero-modules">
@@ -893,6 +893,46 @@ if (!openEntry) {
     </div>
     <div class="deck-foot"><span>HOLOGRAPHIC NAVIGATION</span><span>CLICK A MODULE TO INITIATE JUMP <b>↗</b></span></div>`;
   stage.append(deck);
+  // Reuse the user's GIF as a background-free orange hologram in the mission core and response window.
+  const orangeGif = new Image();
+  orangeGif.className = "jarvis-process-source";
+  orangeGif.alt = "";
+  orangeGif.setAttribute("aria-hidden", "true");
+  orangeGif.style.cssText = "position:fixed;left:-9999px;top:0;width:540px;height:540px;opacity:0;pointer-events:none";
+  orangeGif.src = new URL("../download.gif", import.meta.url).href;
+  document.body.append(orangeGif);
+  const miniCanvas = deck.querySelector(".deck-holo-mini");
+  const miniContext = miniCanvas.getContext("2d", { willReadFrequently: true });
+  let miniRAF = 0, miniLastFrame = 0;
+  const paintOrangeFrame = (source, canvas, size) => {
+    if (!source?.complete || !source.naturalWidth) return;
+    if (canvas.width !== size || canvas.height !== size) { canvas.width = size; canvas.height = size; }
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.clearRect(0, 0, size, size);
+    context.drawImage(source, 90, 25, 360, 360, 0, 0, size, size);
+    const imageData = context.getImageData(0, 0, size, size);
+    const pixels = imageData.data;
+    for (let i = 0; i < pixels.length; i += 4) {
+      const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+      const orange = r > g * 1.04 && g > b * 1.04 && r > 42;
+      const glow = r > 225 && g > 190 && b > 145 && r - b < 105;
+      if (orange) {
+        pixels[i] = 255; pixels[i + 1] = Math.min(214, g + 24); pixels[i + 2] = Math.min(100, b * .58);
+        pixels[i + 3] = Math.min(255, Math.max(0, (r + g) / 1.45));
+      } else if (glow) pixels[i + 3] = Math.min(230, (r + g + b) / 3);
+      else pixels[i + 3] = 0;
+    }
+    context.putImageData(imageData, 0, 0);
+  };
+  const drawMiniHologram = (now = 0) => {
+    if (!document.hidden && now - miniLastFrame >= 60) {
+      miniLastFrame = now;
+      paintOrangeFrame(orangeGif, miniCanvas, 144);
+    }
+    miniRAF = requestAnimationFrame(drawMiniHologram);
+  };
+  orangeGif.addEventListener("load", () => paintOrangeFrame(orangeGif, miniCanvas, 144));
+  drawMiniHologram();
 
   const voiceEngine = window.speechSynthesis;
   let voiceEnabled = false;
@@ -1046,13 +1086,8 @@ if (!openEntry) {
     document.body.append(processLayer);
     processCanvas = processLayer.querySelector("canvas");
     processContext = processCanvas.getContext("2d", { willReadFrequently: true });
-    processImage = new Image();
-    processImage.className = "jarvis-process-source";
-    processImage.alt = "";
-    processImage.setAttribute("aria-hidden", "true");
-    processImage.src = new URL("../download.gif", import.meta.url).href;
-    document.body.append(processImage);
-    processImage.addEventListener("load", () => { if (processLayer?.classList.contains("is-active")) drawOrangeHologram(); });
+    processImage = orangeGif;
+    if (processImage.complete && processImage.naturalWidth && processLayer.classList.contains("is-active")) drawOrangeHologram();
   };
   const drawOrangeHologram = (now = 0) => {
     if (!processLayer?.classList.contains("is-active") || document.hidden || !processImage?.complete || !processImage.naturalWidth) return;
@@ -1060,21 +1095,7 @@ if (!openEntry) {
       processLastFrame = now;
       const size = 480;
       if (processCanvas.width !== size || processCanvas.height !== size) { processCanvas.width = size; processCanvas.height = size; }
-      processContext.clearRect(0, 0, size, size);
-      processContext.drawImage(processImage, 90, 25, 360, 360, 0, 0, size, size);
-      const imageData = processContext.getImageData(0, 0, size, size);
-      const pixels = imageData.data;
-      for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-        const orange = r > g * 1.04 && g > b * 1.04 && r > 42;
-        const glow = r > 225 && g > 190 && b > 145 && r - b < 105;
-        if (orange) {
-          pixels[i] = 255; pixels[i + 1] = Math.min(214, g + 24); pixels[i + 2] = Math.min(100, b * .58);
-          pixels[i + 3] = Math.min(255, Math.max(0, (r + g) / 1.45));
-        } else if (glow) pixels[i + 3] = Math.min(230, (r + g + b) / 3);
-        else pixels[i + 3] = 0;
-      }
-      processContext.putImageData(imageData, 0, 0);
+      paintOrangeFrame(processImage, processCanvas, size);
     }
     processRAF = requestAnimationFrame(drawOrangeHologram);
   };
