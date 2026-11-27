@@ -931,7 +931,7 @@ if (!openEntry) {
     }
     miniRAF = requestAnimationFrame(drawMiniHologram);
   };
-  orangeGif.addEventListener("load", () => paintOrangeFrame(orangeGif, miniCanvas, 144));
+  orangeGif.addEventListener("load", () => { paintOrangeFrame(orangeGif, miniCanvas, 144); if (processLayer?.classList.contains("is-active")) { cancelAnimationFrame(processRAF); processRAF = requestAnimationFrame(drawOrangeHologram); } });
   drawMiniHologram();
 
   const voiceEngine = window.speechSynthesis;
