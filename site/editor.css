@@ -2099,3 +2099,21 @@ body{--margin:22px;--wide:1680px;--desk-h:90px;--bar-h:52px;--eye-w:clamp(170px,
 @media(prefers-reduced-motion:reduce) {
   .deck-voice-toggle { animation: none; }
 }
+
+/* Keep voice control beside the site links at the top of the interface. */
+.switch .deck-voice-toggle {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  z-index: 40;
+  margin-left: 12px;
+  padding: 8px 11px;
+  color: #b7f8ff;
+  white-space: nowrap;
+}
+.switch .deck-voice-toggle[aria-pressed="true"] {
+  color: #9dffbf;
+}
+@media(max-width:700px) {
+  .switch .deck-voice-toggle { position: relative; left: auto; bottom: auto; margin-left: 6px; }
+}
