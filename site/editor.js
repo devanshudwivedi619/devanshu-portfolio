@@ -6,6 +6,7 @@ import { createTerminal } from "./terminal.js";
 import { createBlueprint } from "./blueprint.js";
 import { createTips } from "./tip.js";
 import { createLightbox } from "./lightbox.js";
+import { createFaceScanner } from "./face-scan.js";
 
 const $ = (selector) => document.querySelector(selector);
 const make = (tag, className, text) => {
@@ -945,6 +946,11 @@ if (!openEntry) {
     utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); };
     voiceEngine.speak(utterance);
   };
+  const faceScanner = createFaceScanner({
+    onSignal() {
+      sayWithDeck("Face tracked. Green signal.");
+    },
+  });
   const speakWelcome = () => {
     if (welcomeSpoken || !voiceEngine) return;
     welcomeSpoken = true;
@@ -1059,6 +1065,9 @@ if (!openEntry) {
     };
     const parseCommand = (raw) => {
       const command = normalizeVoice(raw);
+      if (/\b(?:scan|inspect|check|analyze|analyse)\b.*\b(?:face|eyes|nose|cheeks|biometric)\b|\bface\s+scan(?:ning)?\b/.test(command)) {
+        return { target: chooseEntry("about"), dest: "face-scan" };
+      }
       const themeEntry = entries.find(entry => entry.kind === "themes");
       const themeName = [...palettes.keys()].find(name => command.includes(name));
       if (themeName && themeEntry) return { target: themeEntry, dest: "theme", themeName };
@@ -1104,6 +1113,7 @@ if (!openEntry) {
         activeJarvisSpeech = "";
         lastJarvisSpeech = "";
         jarvisAwake = false;
+        faceScanner.stop();
         coreOrb.classList.remove("is-speaking");
         voiceToggle.textContent = "ASLEEP // WAKE WORD";
         voiceToggle.setAttribute("aria-label", "Jarvis is asleep and waiting for the Wake up Jarvis phrase");
@@ -1151,9 +1161,9 @@ if (!openEntry) {
       const wheelEntry = parent || target;
       const index = items.findIndex(item => item.entry === wheelEntry);
       if (index >= 0) wheel.select(index);
-      const label = dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "themes" ? "THEMES" : dest === "theme" ? themeName.toUpperCase() + " THEME" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
+      const label = dest === "face-scan" ? "FACE SCAN" : dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "themes" ? "THEMES" : dest === "theme" ? themeName.toUpperCase() + " THEME" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
       voiceToggle.textContent = "COMMAND ACCEPTED";
-      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest === "theme" ? "themes" : dest } }));
+      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest === "theme" ? "themes" : dest === "face-scan" ? "face" : dest } }));
       const gate = document.createElement("div");
       gate.className = "hero-jump";
       gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>COMMAND ACCEPTED</p><small>OPENING // ' + label.toUpperCase() + '</small>';
@@ -1167,10 +1177,12 @@ if (!openEntry) {
         applyTheme(themeName, true);
         details = "The " + themeName + " color theme is applied. The Themes panel is open.";
       } else if (dest === "contact") details = "Your email and profile links are in the identity panel.";
+      else if (dest === "face-scan") details = "The holographic face landmark scan is ready. Please allow camera access.";
       else if (dest === "project") details = target.data?.description || "The selected project is now open in the portfolio window.";
-      const response = dest === "theme" ? "Command accepted. Applying " + themeName + ". " + details : "Command accepted. Opening " + label + ". " + details;
+      const response = dest === "theme" ? "Command accepted. Applying " + themeName + ". " + details : dest === "face-scan" ? "Command accepted. Starting the face scan. Please allow camera access." : "Command accepted. Opening " + label + ". " + details;
       window.setTimeout(() => {
-        goTo(target);
+        if (dest === "face-scan") faceScanner.start();
+        else goTo(target);
         gate.classList.add("jump-exit");
         window.setTimeout(() => gate.remove(), 550);
         sayWithDeck(response);
@@ -1202,6 +1214,7 @@ if (!openEntry) {
     voiceToggle.setAttribute("aria-label", voiceEnabled ? "Turn Jarvis voice commands off" : "Turn Jarvis voice commands on");
     if (!voiceEnabled) {
       jarvisAwake = false;
+      faceScanner.stop();
       stopListening();
       voiceToggle.textContent = "JARVIS // OFF";
       voiceEngine?.cancel();
