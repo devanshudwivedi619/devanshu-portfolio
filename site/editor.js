@@ -954,6 +954,7 @@ if (!openEntry) {
   let recognizer = null;
   let listening = false;
   let restartTimer = 0;
+  let greetOnStart = false;
   const startListening = () => {
     if (!voiceEnabled || !recognizer || listening || voiceEngine?.speaking) return;
     try { recognizer.start(); listening = true; } catch {}
@@ -970,9 +971,12 @@ if (!openEntry) {
     recognizer.continuous = true;
     recognizer.interimResults = false;
     recognizer.onstart = () => {
-      if (voiceEnabled) {
-        voiceToggle.textContent = "LISTENING";
-        voiceToggle.setAttribute("aria-label", "Jarvis is listening for a command");
+      if (!voiceEnabled) return;
+      voiceToggle.textContent = "LISTENING";
+      voiceToggle.setAttribute("aria-label", "Jarvis is listening for a command");
+      if (greetOnStart) {
+        greetOnStart = false;
+        sayWithDeck("Voice interface online. Say profile, skills, projects, contact, or open a project.");
       }
     };
     recognizer.onresult = (event) => {
@@ -1030,10 +1034,16 @@ if (!openEntry) {
     }
     voiceToggle.textContent = SpeechRecognition ? "JARVIS // ON" : "VOICE ONLY";
     window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: "about" } }));
-    sayWithDeck(SpeechRecognition
-      ? "Voice interface online. Say profile, skills, projects, contact, or open a project."
-      : "Voice replies are on. This browser does not support microphone commands.");
-    if (SpeechRecognition && !voiceEngine) startListening();
+    if (SpeechRecognition) {
+      greetOnStart = true;
+      try { recognizer.start(); listening = true; }
+      catch {
+        greetOnStart = false;
+        sayWithDeck("Voice interface online. Say profile, skills, projects, contact, or open a project.");
+      }
+    } else {
+      sayWithDeck("Voice replies are on. This browser does not support microphone commands.");
+    }
   });
 
   const chooseEntry = (dest) => {
