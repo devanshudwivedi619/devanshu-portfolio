@@ -928,8 +928,11 @@ if (!openEntry) {
   let lastJarvisSpeech = "";
   let lastJarvisSpeechAt = 0;
   let welcomeSpoken = false;
-  const sayWithDeck = (message) => {
-    if (!voiceEnabled || !voiceEngine) return;
+  const sayWithDeck = (message, onDone) => {
+    if (!voiceEnabled || !voiceEngine) {
+      onDone?.();
+      return;
+    }
     voiceEngine.cancel();
     refreshVoices();
     activeJarvisSpeech = message;
@@ -942,13 +945,17 @@ if (!openEntry) {
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
     utterance.onstart = () => coreOrb.classList.add("is-speaking");
-    utterance.onend = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); };
-    utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); };
+    utterance.onend = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); onDone?.(); };
+    utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); onDone?.(); };
     voiceEngine.speak(utterance);
   };
   const faceScanner = createFaceScanner({
     onSignal() {
-      sayWithDeck("Face tracked. Green signal.");
+      let closeGuard = window.setTimeout(() => faceScanner.stop(), 2600);
+      sayWithDeck("Welcome, sir.", () => {
+        clearTimeout(closeGuard);
+        faceScanner.stop();
+      });
     },
   });
   const speakWelcome = () => {
@@ -1148,6 +1155,12 @@ if (!openEntry) {
         voiceEngine.cancel();
         activeJarvisSpeech = "";
         coreOrb.classList.remove("is-speaking");
+      }
+      const thanksCommand = routedAlternatives.some(text => /\bthank you jarvis\b|\bthanks jarvis\b|\bjarvis thank you\b|\bjarvis thanks\b/i.test(normalize(text)));
+      if (thanksCommand) {
+        voiceToggle.textContent = "AWAKE // LISTENING";
+        sayWithDeck("It's okay, sir.");
+        return;
       }
       voiceToggle.textContent = "PROCESSING...";
       const action = routedAlternatives.map(parseCommand).find(item => item?.target);
