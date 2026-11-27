@@ -2,7 +2,7 @@ const VISION_VERSION = "1.2.3";
 const VISION_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + VISION_VERSION;
 const FACE_MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
-export function createFaceScanner({ onSignal = () => {} } = {}) {
+export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {}) {
   let panel = null;
   let stream = null;
   let landmarker = null;
@@ -330,6 +330,7 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
     context = null;
     locked = false;
     lockSince = 0;
+    onStop();
   }
 
   return { start, stop };
