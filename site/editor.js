@@ -1290,6 +1290,7 @@ if (!openEntry) {
       if (event.error === "not-allowed" || event.error === "service-not-allowed") {
         voiceEnabled = false;
         listening = false;
+        hideWakeSky();
         voiceToggle.setAttribute("aria-pressed", "false");
         voiceToggle.textContent = "MIC BLOCKED";
         voiceToggle.setAttribute("aria-label", "Microphone blocked. Allow microphone access for this site in browser settings.");
@@ -1321,6 +1322,7 @@ if (!openEntry) {
       return;
     }
     voiceToggle.textContent = SpeechRecognition ? "ASLEEP // WAKE WORD" : "VOICE ONLY";
+    if (SpeechRecognition) showWakeSky("STANDBY // WAKE WORD", "SAY WAKE UP JARVIS OR UTHO JARVIS");
     window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: "about" } }));
     if (SpeechRecognition) {
       greetOnStart = true;
