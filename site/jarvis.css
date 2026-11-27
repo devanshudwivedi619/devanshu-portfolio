@@ -17,3 +17,14 @@
 @keyframes jBlink{50%{opacity:.25}}@keyframes jScan{0%,100%{transform:translateY(-35px);opacity:.2}50%{transform:translateY(35px);opacity:1}}@keyframes jDrone{from{transform:translate3d(-22px,-14px,0)}to{transform:translate3d(38px,26px,0) rotate(180deg)}}
 @media(max-width:700px){.jarvis-hud:before,.jarvis-hud:after{inset:5px}.j-hud-label{top:10px;right:10px;font-size:7px}.j-status{top:12px;left:12px}.j-face{right:8px;bottom:80px;width:94px;opacity:.32}.j-orbit{left:78%;top:48%;width:58vw;opacity:.55}.j-voice{left:12px;bottom:12px;padding:8px 10px;font-size:8px}}
 @media(prefers-reduced-motion:reduce){.jarvis-hud *,.jarvis-hud:before,.jarvis-hud:after{animation:none!important;transition:none!important}}
+
+/* Animated face scan with a compact live code window. */
+.j-codefeed{position:absolute;top:15vh;right:2vw;z-index:2;width:clamp(190px,21vw,310px);min-height:104px;padding:9px 10px;border:1px solid rgba(75,218,246,.28);background:rgba(3,13,22,.78);box-shadow:0 0 22px rgba(0,194,255,.1),inset 0 0 18px rgba(0,173,221,.05);backdrop-filter:blur(5px);color:#9deeff;text-shadow:0 0 8px rgba(0,220,255,.3);font:8px/1.45 "Plex Mono",ui-monospace,monospace;letter-spacing:.08em;pointer-events:none}
+.j-code-head{display:flex;justify-content:space-between;gap:9px;padding-bottom:6px;border-bottom:1px solid rgba(90,219,245,.2);color:#7bd9ed;font-size:7px;letter-spacing:.13em}
+.j-code-head b{color:#82ffb4;font-weight:400}
+.j-codefeed pre{height:74px;overflow:hidden;margin:7px 0 0;color:#d0e8ef;font:8px/1.55 "Plex Mono",ui-monospace,monospace;white-space:pre-wrap}
+.j-codefeed.is-active{border-color:rgba(82,235,255,.65);box-shadow:0 0 28px rgba(0,205,255,.2),inset 0 0 22px rgba(0,173,221,.1)}
+.j-codefeed.is-active pre:after{content:"▌";color:#71f2ff;animation:jBlink .8s steps(2,end) infinite}
+@media(max-width:900px){.j-codefeed{top:13vh;right:12px;width:clamp(165px,30vw,230px)}}
+@media(max-width:560px){.j-codefeed{top:74px;right:10px;width:175px;min-height:80px;padding:6px}.j-codefeed pre{height:54px;font-size:7px}.j-code-head{font-size:6px}}
+@media(prefers-reduced-motion:reduce){.j-codefeed.is-active pre:after{animation:none}}
