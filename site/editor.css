@@ -1960,12 +1960,12 @@ body::after {
 
 /* Premium superhero-inspired holographic command deck */
 .hero-deck {
- position:fixed; z-index:18; left:50%; bottom:clamp(58px,9vh,105px); transform:translateX(-50%);
+ position:fixed; z-index:18; left:50%; bottom:clamp(26px,4vh,50px); transform:translateX(-50%);
  width:min(760px,calc(100vw - 340px)); min-width:490px; padding:14px 18px 11px;
  color:#d9f8ff; border:1px solid rgba(81,218,255,.32);
- background:linear-gradient(135deg,rgba(5,18,29,.88),rgba(5,10,20,.74) 55%,rgba(14,7,20,.82));
- box-shadow:0 0 38px rgba(0,190,255,.12),inset 0 0 34px rgba(0,155,220,.07);
- backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+ background:linear-gradient(135deg,rgba(5,18,29,.48),rgba(5,10,20,.36) 55%,rgba(14,7,20,.44));
+ box-shadow:0 0 28px rgba(0,190,255,.08),inset 0 0 24px rgba(0,155,220,.035);
+ backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px);
  clip-path:polygon(0 0,97% 0,100% 12%,100% 100%,3% 100%,0 88%);
 }
 .deck-top,.deck-foot {display:flex;justify-content:space-between;align-items:center;gap:12px;font:9px ui-monospace,monospace;letter-spacing:.16em;color:rgba(172,228,242,.62)}
@@ -1982,7 +1982,7 @@ body::after {
 .orbit-dot {position:absolute;width:4px;height:4px;border-radius:50%;background:#aaf8ff;box-shadow:0 0 9px 3px #00bce9}
 .dot-one{left:calc(50% - 54px);top:28px}.dot-two{left:calc(50% + 46px);top:40px}.dot-three{left:calc(50% + 4px);top:7px}
 .hero-modules {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.hero-module {min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;padding:10px 5px 11px;border:1px solid rgba(114,211,236,.19);background:linear-gradient(160deg,rgba(14,42,57,.48),rgba(5,12,22,.52));color:#dffaff;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;overflow:hidden}
+.hero-module {min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;padding:10px 5px 11px;border:1px solid rgba(114,211,236,.19);background:linear-gradient(160deg,rgba(14,42,57,.20),rgba(5,12,22,.25));color:#dffaff;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;overflow:hidden}
 .hero-module::after {content:"";position:absolute;inset:-80% -30%;background:linear-gradient(110deg,transparent 42%,rgba(118,238,255,.11) 50%,transparent 58%);transform:translateX(-70%);transition:transform .7s;pointer-events:none}
 .hero-module:hover,.hero-module:focus-visible,.hero-module.module-active {outline:none;transform:translateY(-5px);border-color:rgba(108,235,255,.75);box-shadow:0 0 23px rgba(0,202,255,.18),inset 0 0 22px rgba(0,180,255,.08)}
 .hero-module:hover::after {transform:translateX(70%)}
@@ -2004,8 +2004,8 @@ body::after {
 .hero-jump p{margin:12px 0 0;font-size:11px;text-shadow:0 0 12px #00cfff}.hero-jump small{font-size:9px;color:rgba(190,238,247,.6)}
 .jump-exit{animation:jump-exit .5s forwards}
 @keyframes orbit-spin{to{rotate:360deg}}@keyframes core-breathe{50%{transform:scale(1.1);filter:brightness(1.4)}}@keyframes deck-blink{50%{opacity:.3}}@keyframes jump-rotate{to{transform:rotate(360deg)}}@keyframes jump-appear{from{opacity:0}to{opacity:1}}@keyframes jump-exit{to{opacity:0;transform:scale(1.08)}}
-@media(max-width:900px){.hero-deck{width:min(620px,calc(100vw - 28px));min-width:0;bottom:62px}.hero-orbits{height:54px}.hero-modules{gap:6px}.hero-module{padding:8px 3px}.module-art{transform:scale(.86)}}
-@media(max-width:520px){.hero-deck{padding:10px 9px 8px;bottom:58px}.deck-title{margin:8px 0 0}.hero-orbits{height:42px}.hero-module>b{font-size:8px}.hero-module>small{font-size:8px}.module-label{font-size:7px}.deck-foot{font-size:7px}.deck-foot span:first-child{display:none}.deck-foot span:last-child{margin:auto}}
+@media(max-width:900px){.hero-deck{width:min(620px,calc(100vw - 28px));min-width:0;bottom:30px}.hero-orbits{height:54px}.hero-modules{gap:6px}.hero-module{padding:8px 3px}.module-art{transform:scale(.86)}}
+@media(max-width:520px){.hero-deck{padding:10px 9px 8px;bottom:12px}.deck-title{margin:8px 0 0}.hero-orbits{height:42px}.hero-module>b{font-size:8px}.hero-module>small{font-size:8px}.module-label{font-size:7px}.deck-foot{font-size:7px}.deck-foot span:first-child{display:none}.deck-foot span:last-child{margin:auto}}
 @media(prefers-reduced-motion:reduce){.hero-deck *,.hero-jump *{animation:none!important;transition:none!important}}
 
 
