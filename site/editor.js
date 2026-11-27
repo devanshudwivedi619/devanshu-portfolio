@@ -1078,6 +1078,9 @@ if (!openEntry) {
       layer.setAttribute("aria-hidden", "true");
       layer.innerHTML = '<div class="jarvis-wake-stars"></div><div class="jarvis-wake-nebula"></div><div class="jarvis-wake-orbit"></div><div class="jarvis-wake-horizon"></div><section class="jarvis-holo-shell"><header class="jarvis-holo-head"><span>DEVANSHU // CYBERSECURITY CONTROL</span><span>● <b id="wake-status">AWAKE // LISTENING</b></span></header><div class="jarvis-holo-grid"><article class="jarvis-holo-card"><div class="jarvis-holo-title"><span>THREAT SCAN / HOLOGRAM</span><b>LOCAL SIMULATION</b></div><div class="jarvis-face-holo"><svg viewBox="0 0 120 140" aria-hidden="true"><path d="M60 8C34 8 22 27 24 57l4 34 12 24 20 15 20-15 12-24 4-34C98 27 86 8 60 8Z"/><path d="M25 52q35-23 70 0M28 70q32-13 64 0M36 92q24 15 48 0M42 49q8-6 16 0M62 49q8-6 16 0M50 79q10 6 20 0"/></svg><i class="jarvis-face-sweep"></i><span class="jarvis-face-label">FACE TRACE // DEMO ONLY</span></div><div class="jarvis-threat-row"><span>PERIMETER</span><b>● SECURE</b></div><div class="jarvis-threat-row"><span>THREAT FEED</span><b>SIMULATED</b></div></article><article class="jarvis-holo-card jarvis-command-core"><div class="jarvis-core-ring"></div><div class="jarvis-holo-state" id="wake-state">AWAKE // LISTENING</div><p class="jarvis-holo-command" id="wake-command">VOICE CHANNEL READY</p><pre class="jarvis-holo-code" id="wake-code"></pre></article><article class="jarvis-holo-card"><div class="jarvis-holo-title"><span>DATA VISUALIZATION</span><b>SIMULATED</b></div><div class="jarvis-data-bars"><i style="--bar:42%;--speed:1.1s"></i><i style="--bar:78%;--speed:1.7s"></i><i style="--bar:56%;--speed:1.3s"></i><i style="--bar:91%;--speed:1.9s"></i><i style="--bar:64%;--speed:1.2s"></i><i style="--bar:73%;--speed:1.6s"></i><i style="--bar:48%;--speed:1.4s"></i></div><svg class="jarvis-sparkline" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 28 L20 21 L38 24 L57 10 L78 17 L96 7 L116 15 L136 4 L157 11 L180 2"/></svg><div class="jarvis-threat-row"><span>SIGNAL</span><b>STABLE / GREEN</b></div></article></div><div class="jarvis-ocean"><span class="jarvis-ocean-label">OCEANIC SENSOR FIELD // HOLOGRAM</span><svg class="jarvis-fish fish-a" viewBox="0 0 80 40" aria-hidden="true"><path d="M7 20Q26 1 51 20Q26 39 7 20M50 20l23-15-2 15 2 15Z"/><circle cx="23" cy="18" r="2" fill="#06121d"/></svg><svg class="jarvis-fish fish-b" viewBox="0 0 80 40" aria-hidden="true"><path d="M7 20Q26 1 51 20Q26 39 7 20M50 20l23-15-2 15 2 15Z"/><circle cx="23" cy="18" r="2" fill="#06121d"/></svg><svg class="jarvis-fish fish-c" viewBox="0 0 80 40" aria-hidden="true"><path d="M7 20Q26 1 51 20Q26 39 7 20M50 20l23-15-2 15 2 15Z"/><circle cx="23" cy="18" r="2" fill="#06121d"/></svg><i class="jarvis-ocean-bubbles"></i></div><footer class="jarvis-holo-foot"><span>SIMULATED PORTFOLIO VISUALS · NO DARK WEB ACCESS OR COMMANDS</span><b id="wake-footer">AWAITING COMMAND</b></footer></section>';
     }
+    // Keep the hologram visible for at least two seconds after each wake/update.
+    clearTimeout(layer._hideTimer);
+    layer._visibleUntil = Date.now() + 2000;
     layer.classList.add("is-awake");
     const status = layer.querySelector("#wake-status");
     const stateNode = layer.querySelector("#wake-state");
@@ -1102,11 +1105,15 @@ if (!openEntry) {
       }, 16);
     }
   };
-  const hideWakeSky = () => {
+  const hideWakeSky = (immediate = false) => {
     const layer = document.querySelector(".jarvis-wake-sky");
     if (!layer) return;
     clearInterval(layer._codeTimer);
-    layer.classList.remove("is-awake");
+    clearTimeout(layer._hideTimer);
+    const hide = () => layer.classList.remove("is-awake");
+    const remaining = (layer._visibleUntil || 0) - Date.now();
+    if (!immediate && remaining > 0) layer._hideTimer = window.setTimeout(hide, remaining);
+    else hide();
   };
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1205,7 +1212,7 @@ if (!openEntry) {
         lastJarvisSpeech = "";
         jarvisAwake = false;
         faceScanner.stop();
-        hideWakeSky();
+        hideWakeSky(true);
         coreOrb.classList.remove("is-speaking");
         voiceToggle.textContent = "ASLEEP // WAKE WORD";
         voiceToggle.setAttribute("aria-label", "Jarvis is asleep and waiting for the Wake up Jarvis phrase");
@@ -1319,7 +1326,7 @@ if (!openEntry) {
     if (!voiceEnabled) {
       jarvisAwake = false;
       faceScanner.stop();
-      hideWakeSky();
+      hideWakeSky(true);
       stopListening();
       voiceToggle.textContent = "JARVIS // OFF";
       voiceEngine?.cancel();
