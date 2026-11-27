@@ -1005,22 +1005,22 @@ if (!openEntry) {
       const themeEntry = entries.find(entry => entry.kind === "themes");
       const themeName = [...palettes.keys()].find(name => command.includes(name));
       if (themeName && themeEntry) return { target: themeEntry, dest: "theme", themeName };
-      if (String.raw`/\\b(themes?|color schemes?|colorschemes?|palette|appearance)\\b/`.test(command) && themeEntry) {
+      if (/\b(themes?|color schemes?|colorschemes?|palette|appearance)\b/.test(command) && themeEntry) {
         return { target: themeEntry, dest: "themes" };
       }
-      const stackOverflow = String.raw`/\\bstack overflow\\b/`.slice(1,-1);
-      const stackIntent = !new RegExp(String.raw`\\bstack overflow\\b`).test(command) && new RegExp(String.raw`\\b(tech stack|stack|skills|skill|technology|technical skills|excel|sql|power bi|python|pyspark|statistics|aws)\\b`).test(command);
+      const stackOverflow = /\bstack overflow\b/.test(command);
+      const stackIntent = !stackOverflow && /\b(tech stack|stack|skills|skill|technology|technical skills|excel|sql|power bi|python|pyspark|statistics|aws)\b/.test(command);
       if (stackIntent) return { target: chooseEntry("stack"), dest: "stack" };
-      if (new RegExp(String.raw`\\b(identity|profile|about|background|education|who am i|who are you)\\b`).test(command)) return { target: chooseEntry("about"), dest: "about" };
-      if (new RegExp(String.raw`\\b(home|start|top)\\b`).test(command)) return { target: chooseEntry("about"), dest: "about" };
-      if (new RegExp(String.raw`\\b(contact|email|reach me)\\b`).test(command)) return { target: chooseEntry("about"), dest: "contact" };
+      if (/\b(identity|profile|about|background|education|who am i|who are you)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\b(home|start|top)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\b(contact|email|reach me)\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
       const project = findProject(command);
       if (project) return { target: project, dest: "project" };
-      if (new RegExp(String.raw`\\bstack overflow\\b`).test(command)) {
+      if (stackOverflow) {
         const survey = entries.find(entry => entry.id === "stack-overflow-developer-survey-dashboard");
         if (survey) return { target: survey, dest: "project" };
       }
-      if (new RegExp(String.raw`\\b(project|projects|archive|repository|repositories|work)\\b`).test(command)) {
+      if (/\b(project|projects|archive|repository|repositories|work)\b/.test(command)) {
         return { target: chooseEntry("projects"), dest: "projects" };
       }
       return null;
@@ -1039,6 +1039,14 @@ if (!openEntry) {
       if (!result.isFinal) return;
       const alternatives = Array.from(result, item => item.transcript);
       const normalize = value => value.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
+      const stopCommand = alternatives.some(text => /\b(?:hey\s+)?jarvis\s+stop\b|\bstop\s+jarvis\b|\bstop\b|\bsilence\b|\bbe quiet\b|\bcancel speech\b/i.test(normalize(text)));
+      if (stopCommand) {
+        voiceEngine?.cancel();
+        activeJarvisSpeech = "";
+        coreOrb.classList.remove("is-speaking");
+        voiceToggle.textContent = "LISTENING";
+        return;
+      }
       const activeText = normalize(activeJarvisSpeech || (Date.now() - lastJarvisSpeechAt < 4500 ? lastJarvisSpeech : ""));
       const isEcho = text => {
         const heard = normalize(text);
