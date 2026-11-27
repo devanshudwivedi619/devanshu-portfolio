@@ -192,6 +192,7 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
       }
       video.srcObject = stream;
       await video.play();
+      if (cancelled || !panel) return;
       setStatus("LOADING FACE LANDMARK MODEL");
       const visionApi = await import(VISION_BASE + "/vision_bundle.mjs");
       const vision = await visionApi.FilesetResolver.forVisionTasks(VISION_BASE + "/wasm");
@@ -207,7 +208,11 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
         options.baseOptions.delegate = "CPU";
         landmarker = await visionApi.FaceLandmarker.createFromOptions(vision, options);
       }
-      if (cancelled || !panel) return;
+      if (cancelled || !panel) {
+        landmarker?.close();
+        landmarker = null;
+        return;
+      }
       setStatus("CENTER YOUR FACE IN THE FRAME");
       const render = () => {
         if (cancelled || !panel || !stream || locked) return;
