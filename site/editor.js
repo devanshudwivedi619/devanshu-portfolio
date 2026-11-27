@@ -1002,19 +1002,25 @@ if (!openEntry) {
         command = command.replace(/\bhey jarvis\b/g, " ").replace(/\s+/g, " ").trim();
       }
       if (!command && wakeArmed) return { wakeOnly: true };
-      const stackOverflow = /\bstack overflow\b/.test(command);
-      const stackIntent = !stackOverflow && /\b(tech stack|stack|skills|skill|technology|technical skills|excel|sql|power bi|python|pyspark|statistics|aws)\b/.test(command);
+      const themeEntry = entries.find(entry => entry.kind === "themes");
+      const themeName = [...palettes.keys()].find(name => command.includes(name));
+      if (themeName && themeEntry) return { target: themeEntry, dest: "theme", themeName };
+      if (String.raw`/\\b(themes?|color schemes?|colorschemes?|palette|appearance)\\b/`.test(command) && themeEntry) {
+        return { target: themeEntry, dest: "themes" };
+      }
+      const stackOverflow = String.raw`/\\bstack overflow\\b/`.slice(1,-1);
+      const stackIntent = !new RegExp(String.raw`\\bstack overflow\\b`).test(command) && new RegExp(String.raw`\\b(tech stack|stack|skills|skill|technology|technical skills|excel|sql|power bi|python|pyspark|statistics|aws)\\b`).test(command);
       if (stackIntent) return { target: chooseEntry("stack"), dest: "stack" };
-      if (/\b(identity|profile|about|background|education|who am i|who are you)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
-      if (/\b(home|start|top)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
-      if (/\b(contact|email|reach me)\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
+      if (new RegExp(String.raw`\\b(identity|profile|about|background|education|who am i|who are you)\\b`).test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (new RegExp(String.raw`\\b(home|start|top)\\b`).test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (new RegExp(String.raw`\\b(contact|email|reach me)\\b`).test(command)) return { target: chooseEntry("about"), dest: "contact" };
       const project = findProject(command);
       if (project) return { target: project, dest: "project" };
-      if (/\bstack overflow\b/.test(command)) {
+      if (new RegExp(String.raw`\\bstack overflow\\b`).test(command)) {
         const survey = entries.find(entry => entry.id === "stack-overflow-developer-survey-dashboard");
         if (survey) return { target: survey, dest: "project" };
       }
-      if (/\b(project|projects|archive|repository|repositories|work)\b/.test(command)) {
+      if (new RegExp(String.raw`\\b(project|projects|archive|repository|repositories|work)\\b`).test(command)) {
         return { target: chooseEntry("projects"), dest: "projects" };
       }
       return null;
@@ -1058,15 +1064,15 @@ if (!openEntry) {
         sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.");
         return;
       }
-      const { target, dest } = action;
+      const { target, dest, themeName } = action;
       wakeArmed = false;
       const parent = entries.find(entry => entry.id === target.parent);
       const wheelEntry = parent || target;
       const index = items.findIndex(item => item.entry === wheelEntry);
       if (index >= 0) wheel.select(index);
-      const label = dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
+      const label = dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "themes" ? "THEMES" : dest === "theme" ? themeName.toUpperCase() + " THEME" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
       voiceToggle.textContent = "COMMAND ACCEPTED";
-      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest } }));
+      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest === "theme" ? "themes" : dest } }));
       const gate = document.createElement("div");
       gate.className = "hero-jump";
       gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>COMMAND ACCEPTED</p><small>OPENING // ' + label.toUpperCase() + '</small>';
@@ -1075,9 +1081,13 @@ if (!openEntry) {
       if (dest === "stack") details = moduleSpeech.stack;
       else if (dest === "about") details = moduleSpeech.about;
       else if (dest === "projects") details = moduleSpeech.projects;
-      else if (dest === "contact") details = "Your email and profile links are in the identity panel.";
+      else if (dest === "themes") details = "The Themes panel is open. Available color themes are " + themes.filter(theme => theme.included).map(theme => theme.name).join(", ") + ".";
+      else if (dest === "theme") {
+        applyTheme(themeName, true);
+        details = "The " + themeName + " color theme is applied. The Themes panel is open.";
+      } else if (dest === "contact") details = "Your email and profile links are in the identity panel.";
       else if (dest === "project") details = target.data?.description || "The selected project is now open in the portfolio window.";
-      const response = "Command accepted. Opening " + label + ". " + details;
+      const response = dest === "theme" ? "Command accepted. Applying " + themeName + ". " + details : "Command accepted. Opening " + label + ". " + details;
       window.setTimeout(() => {
         goTo(target);
         gate.classList.add("jump-exit");
