@@ -17,7 +17,6 @@ export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {
   let activeStage = "idle";
   let latestPoints = null;
   let scanToken = 0;
-  let fingerprintTimer = 0;
 
   const styles = [
     ".face-scan-holo{position:fixed;inset:0;z-index:100100;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at 50% 42%,#073b4bdb,#02070ff5 70%);color:#c9fbff;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}",
@@ -41,25 +40,7 @@ export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {
     ".face-scan-step b{float:right;color:#6b8a91;font-size:9px}",
     ".face-scan-step.is-green{border-color:#46ff9a;color:#a2ffd0;background:#0a261a;box-shadow:0 0 15px #32ff952b;text-shadow:0 0 9px #39ff9a66}",
     ".face-scan-step.is-green b{color:#62ff9f}",
-    ".face-scan-step.is-scanning{border-color:#5deaff;color:#c5f7ff;background:#082031;box-shadow:0 0 12px #18dfff33}",
-    ".face-scan-step.is-scanning b{color:#70eaff}",
-    ".face-scan-step.is-scanning .fingerprint-glyph{stroke:#94ffe0;filter:drop-shadow(0 0 7px #52ffba);animation:fingerprintPulse 1.8s ease-in-out infinite alternate}",
-    "@keyframes fingerprintPulse{to{transform:scale(1.08);opacity:.75}}",
     ".face-scan-fingerprint{display:flex;align-items:center;gap:8px}",
-    ".face-scan-fingerprint-lab{position:relative;min-height:120px;overflow:hidden;border:1px solid #3ccfe555;padding:8px;background:radial-gradient(ellipse,#0a344755,#04101b99 72%);color:#83eaff}",
-    ".face-scan-fingerprint-lab header{display:flex;justify-content:space-between;gap:6px;color:#83eaff;font-size:7px;letter-spacing:.1em}",
-    ".face-scan-fingerprint-lab header b{color:#6e9aa5;font-weight:400}",
-    ".face-scan-fingerprint-art{position:relative;display:grid;place-items:center;height:68px;margin:3px 0;overflow:hidden}",
-    ".face-scan-fingerprint-art svg{width:64px;height:64px;fill:none;stroke:#6beaff;stroke-width:1.35;stroke-linecap:round;stroke-dasharray:2 2;filter:drop-shadow(0 0 4px #2bdfff66);transition:stroke .3s,filter .3s}",
-    ".fingerprint-sweep{display:none;position:absolute;left:18%;right:18%;top:0;height:1px;background:#6effb1;box-shadow:0 0 9px #45ff9f;}",
-    ".face-scan-fingerprint-lab.is-scanning .fingerprint-sweep{display:block;animation:fingerprintSweep 3.4s linear infinite}",
-    ".face-scan-fingerprint-lab.is-scanning svg{stroke:#9affd0;filter:drop-shadow(0 0 8px #42ffb077)}",
-    ".face-scan-fingerprint-lab.is-green{border-color:#46ff9a99;box-shadow:0 0 18px #28ff9a22}",
-    ".face-scan-fingerprint-lab.is-green svg{stroke:#62ff9f;filter:drop-shadow(0 0 7px #62ff9f)}",
-    ".fingerprint-metrics{display:flex;justify-content:space-between;gap:3px;color:#66818a;font-size:6px;letter-spacing:.06em}",
-    ".fingerprint-metrics b{display:block;margin-top:2px;color:#c6f5ff;font-size:8px;font-weight:500}",
-    ".face-scan-fingerprint-lab.is-green .fingerprint-metrics b{color:#62ff9f}",
-    "@keyframes fingerprintSweep{from{top:5px}to{top:63px}}
     ".face-scan-fingerprint small{display:block;color:#66818a;font-size:8px;letter-spacing:.04em}",
     ".fingerprint-glyph{width:35px;height:35px;flex:none;fill:none;stroke:#6b9ca8;stroke-width:1.5;stroke-linecap:round}",
     ".face-scan-step.is-green .fingerprint-glyph{stroke:#62ff9f;filter:drop-shadow(0 0 5px #62ff9f)}",
@@ -69,7 +50,7 @@ export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {
     ".face-scan-hint{margin:13px 0 0;color:#6e9eab;font-size:10px;letter-spacing:.06em}",
     ".face-scan-error{color:#ff8a9b!important}",
     "@keyframes faceScanSweep{from{top:0}to{top:100%}}",
-    "@media(max-width:740px){.face-scan-holo{padding:8px}.face-scan-layout{grid-template-columns:1fr}.face-scan-side{display:grid;grid-template-columns:1fr 1fr}.face-scan-head{font-size:9px}.face-scan-readout{padding:8px}.face-scan-fingerprint-lab{grid-column:1/-1}}",
+    "@media(max-width:740px){.face-scan-holo{padding:8px}.face-scan-layout{grid-template-columns:1fr}.face-scan-side{display:grid;grid-template-columns:1fr 1fr}.face-scan-head{font-size:9px}.face-scan-readout{padding:8px}}",
     "@media(prefers-reduced-motion:reduce){.face-scan-screen.is-scanning:before{animation:none;top:50%}}",
   ].join("");
 
@@ -100,7 +81,7 @@ export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {
     panel.setAttribute("role", "dialog");
     panel.setAttribute("aria-modal", "true");
     panel.setAttribute("aria-label", "Live local face landmark scan");
-    panel.innerHTML = '<div class="face-scan-card"><header class="face-scan-head"><b>JARVIS // HOLOGRAPHIC FACE SCAN</b><button class="face-scan-close" type="button" aria-label="Close face scan">CLOSE ×</button></header><div class="face-scan-layout"><div class="face-scan-screen is-scanning"><video autoplay muted playsinline></video><canvas></canvas></div><aside class="face-scan-side"><div class="face-scan-readout">SCAN STATUS<b data-face-status>REQUESTING CAMERA ACCESS</b></div><div class="face-scan-readout" data-face-signal>TRACK SIGNAL<b>WAITING FOR FACE</b></div><div class="face-scan-stage-list" aria-label="Scan sequence"><div class="face-scan-step" data-scan-stage="left-eye">01 / LEFT EYE<b>WAITING</b></div><div class="face-scan-step" data-scan-stage="right-eye">02 / RIGHT EYE<b>WAITING</b></div><div class="face-scan-step face-scan-fingerprint" data-scan-stage="fingerprint"><svg class="fingerprint-glyph" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5c-7 0-12 5-12 12m24 0c0-7-5-12-12-12M12 19c0-5 3-8 8-8s8 3 8 8m-20 4c0 9-2 12-4 15m8-16c0 8-1 13-3 17m7-18c0 10-1 15-2 18m7-18c0 8 1 13 3 17m4-16c0 9 2 12 4 15M15 19c0-3 2-5 5-5s5 2 5 5v3"/></svg><span>03 / FINGERPRINT<small>VISUAL SIMULATION ONLY</small></span><b>WAITING</b></div><div class="face-scan-step" data-scan-stage="nose">04 / NOSE<b>WAITING</b></div><div class="face-scan-step" data-scan-stage="lips">05 / LIPS<b>WAITING</b></div></div><div class="face-scan-fingerprint-lab" data-fingerprint-lab><header><span>FINGERPRINT RIDGE MAP</span><b>VISUAL DEMO</b></header><div class="face-scan-fingerprint-art"><svg viewBox="0 0 80 80" aria-hidden="true"><path d="M40 8c-15 0-25 11-25 25m50 0C65 18 55 8 40 8M21 37c0-11 7-18 19-18s19 7 19 18M17 44c0 13-2 20-7 27m16-28c0 12-2 21-5 29m12-30c0 16-1 23-3 31m13-31c0 15 2 23 4 30m8-29c0 13 2 21 6 27M29 37c0-7 4-11 11-11s11 4 11 11v9c0 10 1 16 4 23M35 38c0-3 2-5 5-5s5 2 5 5v13c0 5 0 10 2 15"/></svg><i class="fingerprint-sweep"></i></div><div class="fingerprint-metrics"><span>TRACKS<b data-fp-tracks>00 / 18</b></span><span>PROGRESS<b data-fp-progress>00%</b></span><span>RESULT<b data-fp-result>STANDBY</b></span></div></div><div class="face-scan-readout">PROCESSING<b>ON THIS DEVICE</b></div></aside></aside></div><p class="face-scan-hint">Camera frames stay in this browser and are not recorded. MediaPipe may send usage metrics. Close the scan to stop the camera.</p></div>';
+    panel.innerHTML = '<div class="face-scan-card"><header class="face-scan-head"><b>JARVIS // HOLOGRAPHIC FACE SCAN</b><button class="face-scan-close" type="button" aria-label="Close face scan">CLOSE ×</button></header><div class="face-scan-layout"><div class="face-scan-screen is-scanning"><video autoplay muted playsinline></video><canvas></canvas></div><aside class="face-scan-side"><div class="face-scan-readout">SCAN STATUS<b data-face-status>REQUESTING CAMERA ACCESS</b></div><div class="face-scan-readout" data-face-signal>TRACK SIGNAL<b>WAITING FOR FACE</b></div><div class="face-scan-stage-list" aria-label="Scan sequence"><div class="face-scan-step" data-scan-stage="left-eye">01 / LEFT EYE<b>WAITING</b></div><div class="face-scan-step" data-scan-stage="right-eye">02 / RIGHT EYE<b>WAITING</b></div><div class="face-scan-step face-scan-fingerprint" data-scan-stage="fingerprint"><svg class="fingerprint-glyph" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5c-7 0-12 5-12 12m24 0c0-7-5-12-12-12M12 19c0-5 3-8 8-8s8 3 8 8m-20 4c0 9-2 12-4 15m8-16c0 8-1 13-3 17m7-18c0 10-1 15-2 18m7-18c0 8 1 13 3 17m4-16c0 9 2 12 4 15M15 19c0-3 2-5 5-5s5 2 5 5v3"/></svg><span>03 / FINGERPRINT<small>VISUAL SIMULATION ONLY</small></span><b>WAITING</b></div><div class="face-scan-step" data-scan-stage="nose">04 / NOSE<b>WAITING</b></div><div class="face-scan-step" data-scan-stage="lips">05 / LIPS<b>WAITING</b></div></div><div class="face-scan-readout">PROCESSING<b>ON THIS DEVICE</b></div></aside></div><p class="face-scan-hint">Camera frames stay in this browser and are not recorded. MediaPipe may send usage metrics. Close the scan to stop the camera.</p></div>';
     document.body.append(panel);
     panel.querySelector(".face-scan-close").addEventListener("click", stop);
     panel.addEventListener("click", (event) => {
@@ -192,64 +173,29 @@ export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {
     }
   }
 
-  function updateFingerprintMetrics(progress, result = "SCANNING") {
-    if (!panel) return;
-    const percent = Math.max(0, Math.min(100, Math.round(progress)));
-    const tracks = Math.round(percent * 18 / 100);
-    const tracksNode = panel.querySelector("[data-fp-tracks]");
-    const progressNode = panel.querySelector("[data-fp-progress]");
-    const resultNode = panel.querySelector("[data-fp-result]");
-    if (tracksNode) tracksNode.textContent = String(tracks).padStart(2, "0") + " / 18";
-    if (progressNode) progressNode.textContent = String(percent).padStart(2, "0") + "%";
-    if (resultNode) resultNode.textContent = result;
-  }
-
   function resetStages() {
-    clearInterval(fingerprintTimer);
-    fingerprintTimer = 0;
     panel?.querySelectorAll("[data-scan-stage]").forEach((node) => {
-      node.classList.remove("is-green", "is-scanning");
+      node.classList.remove("is-green");
       const state = node.querySelector("b");
       if (state) state.textContent = "WAITING";
     });
-    panel?.querySelector("[data-fingerprint-lab]")?.classList.remove("is-green", "is-scanning");
-    updateFingerprintMetrics(0, "STANDBY");
   }
 
   async function runScanSequence(token) {
     const steps = [
-      ["left-eye", "SCANNING LEFT EYE LANDMARKS", 950],
-      ["right-eye", "SCANNING RIGHT EYE LANDMARKS", 950],
-      ["fingerprint", "SCANNING FINGERPRINT RIDGES // VISUAL SIMULATION", 3400],
-      ["nose", "SCANNING NOSE LANDMARKS", 950],
-      ["lips", "SCANNING LIP CONTOUR", 950],
+      ["left-eye", "SCANNING LEFT EYE"],
+      ["right-eye", "SCANNING RIGHT EYE"],
+      ["fingerprint", "FINGERPRINT VISUAL SIMULATION"],
+      ["nose", "SCANNING NOSE LANDMARKS"],
+      ["lips", "SCANNING LIP CONTOUR"],
     ];
-    for (const [id, label, duration] of steps) {
+    for (const [id, label] of steps) {
       if (cancelled || !panel || token !== scanToken) return;
       activeStage = id;
       setStatus(label);
-      const row = panel.querySelector('[data-scan-stage="' + id + '"]');
-      row?.classList.add("is-scanning");
-      if (id === "fingerprint") {
-        const lab = panel.querySelector("[data-fingerprint-lab]");
-        lab?.classList.add("is-scanning");
-        const started = performance.now();
-        clearInterval(fingerprintTimer);
-        fingerprintTimer = window.setInterval(() => {
-          const progress = Math.min(99, ((performance.now() - started) / duration) * 100);
-          updateFingerprintMetrics(progress, "SIMULATED");
-        }, 80);
-      }
-      await new Promise((resolve) => setTimeout(resolve, duration));
-      clearInterval(fingerprintTimer);
-      fingerprintTimer = 0;
+      await new Promise((resolve) => setTimeout(resolve, 560));
       if (cancelled || !panel || token !== scanToken) return;
-      row?.classList.remove("is-scanning");
-      if (id === "fingerprint") {
-        panel.querySelector("[data-fingerprint-lab]")?.classList.remove("is-scanning");
-        panel.querySelector("[data-fingerprint-lab]")?.classList.add("is-green");
-        updateFingerprintMetrics(100, "✓ DEMO MARK");
-      }
+      const row = panel.querySelector('[data-scan-stage="' + id + '"]');
       row?.classList.add("is-green");
       const state = row?.querySelector("b");
       if (state) state.textContent = "✓ GREEN";
@@ -373,8 +319,6 @@ export function createFaceScanner({ onSignal = () => {}, onStop = () => {} } = {
 
   function stop() {
     cancelled = true;
-    clearInterval(fingerprintTimer);
-    fingerprintTimer = 0;
     scanToken++;
     sequenceRunning = false;
     activeStage = "idle";
