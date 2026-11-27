@@ -139,9 +139,14 @@
   document.querySelectorAll(".mission-card").forEach(card => card.addEventListener("click", () => {
     const section = card.dataset.target === "about" ? "about" : card.dataset.target === "projects" ? "projects" : "skills";
     typeScan(section);
-    speak(card.dataset.speech || "Mission selected.");
+    if (enabled) speak(card.dataset.speech || "Mission selected.");
+    setTimeout(() => document.getElementById(card.dataset.target)?.scrollIntoView({behavior:"smooth"}), 450);
   }));
-  document.querySelectorAll(".project-tile").forEach(tile => tile.addEventListener("click", () => typeScan("projects")));
+  document.querySelectorAll(".project-tile").forEach(tile => tile.addEventListener("click", () => {
+    typeScan("projects");
+    if (enabled) speak(tile.dataset.speech);
+    setTimeout(() => window.open("https://github.com/devanshudwivedi619/" + tile.dataset.project, "_blank", "noopener"), 450);
+  }));
   document.querySelectorAll("nav a").forEach(link => link.addEventListener("click", () => {
     const section = (link.getAttribute("href") || "").slice(1);
     typeScan(snippets[section] ? section : "home");
