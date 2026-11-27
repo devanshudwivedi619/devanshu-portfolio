@@ -1155,7 +1155,12 @@ if (!openEntry) {
         return { target: chooseEntry("about"), dest: "face-scan" };
       }
       const themeEntry = entries.find(entry => entry.kind === "themes");
-      const themeName = [...palettes.keys()].find(name => command.includes(name));
+      const themeIntent = /\b(themes?|color schemes?|colorschemes?|palette|appearance|select|choose|apply|set)\b/.test(command);
+      // Voice transcripts may split a single theme name (for example, “Blackmoney”)
+      // into separate words. Compare normalized names and prefer the most specific match.
+      const themeName = themeIntent
+        ? [...palettes.keys()].sort((a, b) => b.length - a.length).find(name => key(command).includes(name))
+        : null;
       if (themeName && themeEntry) return { target: themeEntry, dest: "theme", themeName };
       if (/\b(themes?|color schemes?|colorschemes?|palette|appearance)\b/.test(command) && themeEntry) {
         return { target: themeEntry, dest: "themes" };
