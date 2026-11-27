@@ -924,11 +924,15 @@ if (!openEntry) {
   coreOrb.setAttribute("tabindex", "0");
   coreOrb.setAttribute("aria-label", "Activate the portfolio voice assistant");
   let activeJarvisSpeech = "";
+  let lastJarvisSpeech = "";
+  let lastJarvisSpeechAt = 0;
   const sayWithDeck = (message) => {
     if (!voiceEnabled || !voiceEngine) return;
     voiceEngine.cancel();
     refreshVoices();
     activeJarvisSpeech = message;
+    lastJarvisSpeech = message;
+    lastJarvisSpeechAt = Date.now();
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = preferredVoice?.lang || "en-IN";
     utterance.rate = 0.88;
@@ -1028,15 +1032,15 @@ if (!openEntry) {
       const result = event.results[event.results.length - 1];
       if (!result.isFinal) return;
       const alternatives = Array.from(result, item => item.transcript);
-      const normalize = value => value.toLowerCase().replace(/[^a-z0-9\\s]/g," ").replace(/\\s+/g," ").trim();
-      const activeText = normalize(activeJarvisSpeech);
+      const normalize = value => value.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
+      const activeText = normalize(activeJarvisSpeech || (Date.now() - lastJarvisSpeechAt < 4500 ? lastJarvisSpeech : ""));
       const isEcho = text => {
         const heard = normalize(text);
         if (!activeText || !heard) return false;
         const ratio = Math.min(activeText.length, heard.length) / Math.max(activeText.length, heard.length);
-        return heard === activeText || (ratio > .78 && (activeText.includes(heard) || heard.includes(activeText)));
+        return heard === activeText || (ratio > .82 && (activeText.includes(heard) || heard.includes(activeText)));
       };
-      if (voiceEngine?.speaking && alternatives.every(isEcho)) return;
+      if (alternatives.every(isEcho)) return;
       if (voiceEngine?.speaking) {
         voiceEngine.cancel();
         activeJarvisSpeech = "";
