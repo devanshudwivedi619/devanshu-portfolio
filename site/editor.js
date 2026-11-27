@@ -1044,17 +1044,23 @@ if (!openEntry) {
       layer = document.createElement("div");
       layer.className = "jarvis-wake-sky";
       layer.setAttribute("aria-hidden", "true");
-      layer.innerHTML = '<div class="jarvis-wake-stars"></div><div class="jarvis-wake-nebula"></div><div class="jarvis-wake-orbit"></div><div class="jarvis-wake-horizon"></div><section class="jarvis-wake-panel"><header class="jarvis-wake-head"><span>DEVANSHU // SECURE PORTFOLIO CONSOLE</span><span>● SYSTEM ONLINE</span></header><h2 class="jarvis-wake-title">JARVIS // AWAKE</h2><p class="jarvis-wake-sub">OCEANIC HOLOGRAM FIELD · COMMAND CHANNEL READY</p><div class="jarvis-wake-term"><div class="jarvis-wake-window"><b><span>~/system/boot</span><i>READY</i></b><pre><span>$</span> jarvis --wake
-loading voice link...
-rendering ocean field...
-assistant.status = "online"</pre></div><div class="jarvis-wake-window"><b><span>~/portfolio/scan</span><i>LOCAL DEMO</i></b><pre><span>$</span> scan --mode hologram
-tracking landmarks...
-signal: <span>green / locked</span>
-privacy: camera stays local</pre></div></div><footer class="jarvis-wake-footer">SIMULATED TERMINAL DISPLAY · NO COMMANDS EXECUTED</footer></section>';
+      layer.innerHTML = '<div class="jarvis-wake-stars"></div><div class="jarvis-wake-nebula"></div><div class="jarvis-wake-orbit"></div><div class="jarvis-wake-horizon"></div><section class="jarvis-wake-panel"><header class="jarvis-wake-head"><span>DEVANSHU // SECURE PORTFOLIO CONSOLE</span><span>● SYSTEM ONLINE</span></header><h2 class="jarvis-wake-title">JARVIS // AWAKE</h2><p class="jarvis-wake-sub">OCEANIC HOLOGRAM FIELD · COMMAND CHANNEL READY</p><div class="jarvis-wake-term"><div class="jarvis-wake-window"><b><span>~/system/boot</span><i>READY</i></b><pre class="jarvis-wake-code" data-code="$ jarvis --wake&#10;loading voice link...&#10;rendering ocean field...&#10;assistant.status = &quot;online&quot;"></pre></div><div class="jarvis-wake-window"><b><span>~/portfolio/scan</span><i>LOCAL DEMO</i></b><pre class="jarvis-wake-code" data-code="$ scan --mode hologram&#10;tracking landmarks...&#10;signal: green / locked&#10;privacy: camera stays local"></pre></div></div><footer class="jarvis-wake-footer">SIMULATED TERMINAL DISPLAY · NO COMMANDS EXECUTED</footer></section>'
     }
     layer.classList.remove("is-waking");
     void layer.offsetWidth;
     layer.classList.add("is-waking");
+    (layer._typeTimers || []).forEach(clearInterval);
+    layer._typeTimers = [];
+    layer.querySelectorAll(".jarvis-wake-code").forEach((node, index) => {
+      const text = node.dataset.code || "";
+      let cursor = 0;
+      node.textContent = "";
+      const timer = window.setInterval(() => {
+        node.textContent = text.slice(0, ++cursor);
+        if (cursor >= text.length) window.clearInterval(timer);
+      }, 20 + index * 6);
+      layer._typeTimers.push(timer);
+    });
     clearTimeout(layer._wakeTimer);
     layer._wakeTimer = setTimeout(() => layer.classList.remove("is-waking"), 4300);
   };
@@ -1158,13 +1164,13 @@ privacy: camera stays local</pre></div></div><footer class="jarvis-wake-footer">
       const wakeTranscript = alternatives.find(text => wakePattern.test(normalize(text)));
       let routedAlternatives = alternatives;
       if (wakeTranscript) {
+        if (!result.isFinal) return;
         const cleaned = normalize(wakeTranscript).replace(wakePattern, " ").replace(/\s+/g, " ").trim();
         jarvisAwake = true;
         voiceToggle.textContent = "AWAKE // LISTENING";
         voiceToggle.setAttribute("aria-label", "Jarvis is awake and listening for English commands");
         showWakeSky();
         sayWithDeck("Command accepted.");
-        if (!result.isFinal) return;
         if (!cleaned) return;
         routedAlternatives = [cleaned];
       } else if (!jarvisAwake || !result.isFinal) {
