@@ -115,10 +115,10 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
     context.fillText(label, x + 9, y - 8);
   }
 
-  function drawLandmarks(points) {
+  function drawLandmarks(points, clear = true) {
     const w = canvas.width;
     const h = canvas.height;
-    context.clearRect(0, 0, w, h);
+    if (clear) context.clearRect(0, 0, w, h);
     const oval = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109,10];
     const eyeL = [33,160,158,133,153,144,163,7,33];
     const eyeR = [362,385,387,263,373,380,390,249,362];
@@ -162,7 +162,7 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    drawLandmarks(points);
+    drawLandmarks(points, false);
     panel.querySelector(".face-scan-screen").classList.add("is-locked");
     panel.querySelector(".face-scan-screen").classList.remove("is-scanning");
     setStatus("FACE TRACK LOCK // GREEN SIGNAL", true);
@@ -185,7 +185,11 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
         audio: false,
         video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 720 } },
       });
-      if (cancelled || !panel) return;
+      if (cancelled || !panel) {
+        stream?.getTracks().forEach((track) => track.stop());
+        stream = null;
+        return;
+      }
       video.srcObject = stream;
       await video.play();
       setStatus("LOADING FACE LANDMARK MODEL");
@@ -222,8 +226,12 @@ export function createFaceScanner({ onSignal = () => {} } = {}) {
             const dy = center.y - .5;
             const instruction = Math.abs(dx) > .12 ? (dx < 0 ? "SHIFT RIGHT" : "SHIFT LEFT") : Math.abs(dy) > .16 ? (dy < 0 ? "MOVE DOWN" : "MOVE UP") : "HOLD STILL";
             setStatus(instruction);
-            if (!lockSince) lockSince = performance.now();
-            if (performance.now() - lockSince > 1450) finishScan(points);
+            if (instruction === "HOLD STILL") {
+              if (!lockSince) lockSince = performance.now();
+              if (performance.now() - lockSince > 1450) finishScan(points);
+            } else {
+              lockSince = 0;
+            }
           } else {
             lockSince = 0;
             setStatus("MOVE INTO FRAME");
