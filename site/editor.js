@@ -980,9 +980,43 @@ if (!openEntry) {
       greeting();
     }
   });
+  const showWakeSky = () => {
+    let layer = document.querySelector(".jarvis-wake-sky");
+    if (!layer) {
+      const style = document.createElement("style");
+      style.textContent = \`
+        .jarvis-wake-sky{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;background:radial-gradient(ellipse at 50% 48%,rgba(13,56,110,.82),rgba(4,11,30,.96) 58%,#02040b 100%);color:#e6fbff;font:700 13px/1.5 ui-monospace,monospace;letter-spacing:.24em;text-align:center}
+        .jarvis-wake-sky.is-waking{visibility:visible;animation:jarvisWakeFlash 2.8s ease-out forwards}
+        .jarvis-wake-sky:before,.jarvis-wake-sky:after{content:"";position:absolute;width:min(80vw,850px);aspect-ratio:1;border:1px solid rgba(73,221,255,.42);border-radius:50%;box-shadow:0 0 35px #14dfff55,inset 0 0 45px #6554ff35;animation:jarvisOrbit 5s linear infinite}
+        .jarvis-wake-sky:after{width:min(58vw,600px);border-color:#ff48cf66;transform:rotateX(68deg);animation-duration:3.6s}
+        .jarvis-wake-nebula{position:absolute;inset:-20%;background:radial-gradient(ellipse at 32% 40%,#5b38ff55,transparent 35%),radial-gradient(ellipse at 67% 56%,#00d9ff4c,transparent 33%),radial-gradient(ellipse at 52% 72%,#ff39bd40,transparent 28%);filter:blur(18px);animation:jarvisNebula .42s ease-in-out 5 alternate}
+        .jarvis-wake-stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1.6px),radial-gradient(#56eaff 1px,transparent 1.7px),radial-gradient(#ee74ff 1px,transparent 1.7px);background-size:83px 83px,127px 127px,191px 191px;background-position:4px 12px,41px 58px,77px 25px;animation:jarvisStars 2.8s ease-out}
+        .jarvis-wake-copy{position:relative;z-index:2;padding:30px 42px;border:1px solid #59eaff88;background:#071421bb;box-shadow:0 0 38px #12dfff44;text-shadow:0 0 18px #22dfff}
+        .jarvis-wake-copy b{display:block;margin-top:9px;color:#fff;font-size:clamp(16px,3vw,27px);letter-spacing:.18em}
+        @keyframes jarvisWakeFlash{0%{opacity:0}8%{opacity:1}17%{opacity:.38}25%{opacity:1}36%{opacity:.72}48%{opacity:1}75%{opacity:.85}100%{opacity:0;visibility:hidden}}
+        @keyframes jarvisOrbit{to{rotate:360deg}}
+        @keyframes jarvisNebula{to{transform:scale(1.14);filter:blur(26px) hue-rotate(70deg)}}
+        @keyframes jarvisStars{0%{transform:scale(.5);opacity:0}30%{opacity:1}100%{transform:scale(1.15);opacity:.55}}
+        @media(prefers-reduced-motion:reduce){.jarvis-wake-sky.is-waking{animation:none;opacity:1;visibility:visible}.jarvis-wake-sky:before,.jarvis-wake-sky:after,.jarvis-wake-nebula,.jarvis-wake-stars{animation:none}}
+      \`;
+      document.head.append(style);
+      layer = document.createElement("div");
+      layer.className = "jarvis-wake-sky";
+      layer.setAttribute("aria-hidden", "true");
+      layer.innerHTML = '<div class="jarvis-wake-nebula"></div><div class="jarvis-wake-stars"></div><div class="jarvis-wake-copy">JARVIS // ONLINE<b>COMMAND ACCEPTED</b></div>';
+      document.body.append(layer);
+    }
+    layer.classList.remove("is-waking");
+    void layer.offsetWidth;
+    layer.classList.add("is-waking");
+    clearTimeout(layer._wakeTimer);
+    layer._wakeTimer = setTimeout(() => layer.classList.remove("is-waking"), 3000);
+  };
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognizer = null;
   let listening = false;
+  let jarvisAwake = false;
   let restartTimer = 0;
   let greetOnStart = false;
   const startListening = () => {
@@ -1019,12 +1053,7 @@ if (!openEntry) {
       return candidates[0].entry;
     };
     const parseCommand = (raw) => {
-      let command = normalizeVoice(raw);
-      if (/\bhey jarvis\b/.test(command)) {
-        wakeArmed = true;
-        command = command.replace(/\bhey jarvis\b/g, " ").replace(/\s+/g, " ").trim();
-      }
-      if (!command && wakeArmed) return { wakeOnly: true };
+      const command = normalizeVoice(raw);
       const themeEntry = entries.find(entry => entry.kind === "themes");
       const themeName = [...palettes.keys()].find(name => command.includes(name));
       if (themeName && themeEntry) return { target: themeEntry, dest: "theme", themeName };
@@ -1050,11 +1079,14 @@ if (!openEntry) {
     };
     recognizer.onstart = () => {
       if (!voiceEnabled) return;
-      voiceToggle.textContent = "LISTENING";
-      voiceToggle.setAttribute("aria-label", "Jarvis is listening for English commands");
+      voiceToggle.textContent = jarvisAwake ? "AWAKE // LISTENING" : "ASLEEP // WAKE WORD";
+      voiceToggle.setAttribute("aria-label", jarvisAwake ? "Jarvis is awake and listening for English commands" : "Jarvis is asleep and waiting for the Wake up Jarvis phrase");
       if (greetOnStart) {
         greetOnStart = false;
-sayWithDeck("Welcome to the Devanshu Portfolio.")
+        if (!welcomeSpoken) {
+          welcomeSpoken = true;
+          sayWithDeck("Welcome to the Devanshu Portfolio.");
+        }
       }
     };
     recognizer.onresult = (event) => {
@@ -1066,12 +1098,29 @@ sayWithDeck("Welcome to the Devanshu Portfolio.")
         voiceEngine?.cancel();
         activeJarvisSpeech = "";
         lastJarvisSpeech = "";
+        jarvisAwake = false;
         coreOrb.classList.remove("is-speaking");
-        voiceToggle.textContent = "LISTENING";
-        if (result.isFinal) wakeArmed = false;
+        voiceToggle.textContent = "ASLEEP // WAKE WORD";
+        voiceToggle.setAttribute("aria-label", "Jarvis is asleep and waiting for the Wake up Jarvis phrase");
         return;
       }
-      if (!result.isFinal) return;
+      const wakeTranscript = alternatives.find(text => /\bwake\s+up\s+jarvis\b|\bwake\s+jarvis\b|\bjarvis\s+wake\s+up\b/i.test(normalize(text)));
+      let routedAlternatives = alternatives;
+      if (wakeTranscript) {
+        const cleaned = normalize(wakeTranscript).replace(/\bwake\s+up\s+jarvis\b|\bwake\s+jarvis\b|\bjarvis\s+wake\s+up\b/ig, " ").replace(/\s+/g, " ").trim();
+        if (!jarvisAwake) {
+          jarvisAwake = true;
+          voiceToggle.textContent = "AWAKE // LISTENING";
+          voiceToggle.setAttribute("aria-label", "Jarvis is awake and listening for English commands");
+          showWakeSky();
+          sayWithDeck("Command accepted.");
+        }
+        if (!result.isFinal) return;
+        if (!cleaned) return;
+        routedAlternatives = [cleaned];
+      } else if (!jarvisAwake || !result.isFinal) {
+        return;
+      }
       const activeText = normalize(activeJarvisSpeech || (Date.now() - lastJarvisSpeechAt < 4500 ? lastJarvisSpeech : ""));
       const isEcho = text => {
         const heard = normalize(text);
@@ -1086,19 +1135,13 @@ sayWithDeck("Welcome to the Devanshu Portfolio.")
         coreOrb.classList.remove("is-speaking");
       }
       voiceToggle.textContent = "PROCESSING...";
-      const action = alternatives.map(parseCommand).find(item => item?.target || item?.wakeOnly);
-      if (action?.wakeOnly) {
-        voiceToggle.textContent = "LISTENING";
-sayWithDeck("Listening.")
-        return;
-      }
+      const action = routedAlternatives.map(parseCommand).find(item => item?.target);
       if (!action?.target) {
         voiceToggle.textContent = "COMMAND NOT RECOGNIZED";
         sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.");
         return;
       }
       const { target, dest, themeName } = action;
-      wakeArmed = false;
       const parent = entries.find(entry => entry.id === target.parent);
       const wheelEntry = parent || target;
       const index = items.findIndex(item => item.entry === wheelEntry);
@@ -1153,13 +1196,14 @@ sayWithDeck("Listening.")
     voiceToggle.setAttribute("aria-pressed", String(voiceEnabled));
     voiceToggle.setAttribute("aria-label", voiceEnabled ? "Turn Jarvis voice commands off" : "Turn Jarvis voice commands on");
     if (!voiceEnabled) {
+      jarvisAwake = false;
       stopListening();
       voiceToggle.textContent = "JARVIS // OFF";
       voiceEngine?.cancel();
       coreOrb.classList.remove("is-speaking");
       return;
     }
-    voiceToggle.textContent = SpeechRecognition ? "JARVIS // ON" : "VOICE ONLY";
+    voiceToggle.textContent = SpeechRecognition ? "ASLEEP // WAKE WORD" : "VOICE ONLY";
     window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: "about" } }));
     if (SpeechRecognition) {
       greetOnStart = true;
