@@ -923,11 +923,12 @@ if (!openEntry) {
   coreOrb.setAttribute("role", "button");
   coreOrb.setAttribute("tabindex", "0");
   coreOrb.setAttribute("aria-label", "Activate the portfolio voice assistant");
+  let activeJarvisSpeech = "";
   const sayWithDeck = (message) => {
     if (!voiceEnabled || !voiceEngine) return;
-    stopListening();
     voiceEngine.cancel();
     refreshVoices();
+    activeJarvisSpeech = message;
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = preferredVoice?.lang || "en-IN";
     utterance.rate = 0.88;
@@ -935,8 +936,8 @@ if (!openEntry) {
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
     utterance.onstart = () => coreOrb.classList.add("is-speaking");
-    utterance.onend = () => { coreOrb.classList.remove("is-speaking"); startListening(); };
-    utterance.onerror = () => { coreOrb.classList.remove("is-speaking"); startListening(); };
+    utterance.onend = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); };
+    utterance.onerror = () => { activeJarvisSpeech = ""; coreOrb.classList.remove("is-speaking"); startListening(); };
     voiceEngine.speak(utterance);
   };
   const moduleSpeech = {
@@ -958,7 +959,7 @@ if (!openEntry) {
   let restartTimer = 0;
   let greetOnStart = false;
   const startListening = () => {
-    if (!voiceEnabled || !recognizer || listening || voiceEngine?.speaking) return;
+    if (!voiceEnabled || !recognizer || listening) return;
     try { recognizer.start(); listening = true; } catch {}
   };
   const stopListening = () => {
@@ -1020,21 +1021,37 @@ if (!openEntry) {
       voiceToggle.setAttribute("aria-label", "Jarvis is listening for English commands");
       if (greetOnStart) {
         greetOnStart = false;
-        sayWithDeck("Jarvis online. Say hey Jarvis, then tell me what to open. For example, open the IT spend and asset project, show me the tech stack, or open identity.");
+        sayWithDeck("Jarvis online and listening. Tell me which portfolio section or project to open.");
       }
     };
     recognizer.onresult = (event) => {
       const result = event.results[event.results.length - 1];
       if (!result.isFinal) return;
-      voiceToggle.textContent = "PROCESSING...";
       const alternatives = Array.from(result, item => item.transcript);
+      const normalize = value => value.toLowerCase().replace(/[^a-z0-9\\s]/g," ").replace(/\\s+/g," ").trim();
+      const activeText = normalize(activeJarvisSpeech);
+      const isEcho = text => {
+        const heard = normalize(text);
+        if (!activeText || !heard) return false;
+        const ratio = Math.min(activeText.length, heard.length) / Math.max(activeText.length, heard.length);
+        return heard === activeText || (ratio > .78 && (activeText.includes(heard) || heard.includes(activeText)));
+      };
+      if (voiceEngine?.speaking && alternatives.every(isEcho)) return;
+      if (voiceEngine?.speaking) {
+        voiceEngine.cancel();
+        activeJarvisSpeech = "";
+        coreOrb.classList.remove("is-speaking");
+      }
+      voiceToggle.textContent = "PROCESSING...";
       const action = alternatives.map(parseCommand).find(item => item?.target || item?.wakeOnly);
       if (action?.wakeOnly) {
+        voiceToggle.textContent = "LISTENING";
         sayWithDeck("Yes sir. What would you like me to open?");
         return;
       }
       if (!action?.target) {
-        sayWithDeck("I didn't catch that. Try: open the IT spend and asset project, show me the tech stack, open identity, or show projects.");
+        voiceToggle.textContent = "COMMAND NOT RECOGNIZED";
+        sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.");
         return;
       }
       const { target, dest } = action;
@@ -1044,14 +1061,19 @@ if (!openEntry) {
       const index = items.findIndex(item => item.entry === wheelEntry);
       if (index >= 0) wheel.select(index);
       const label = dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
+      voiceToggle.textContent = "COMMAND ACCEPTED";
       window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest } }));
       const gate = document.createElement("div");
       gate.className = "hero-jump";
-      gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>JARVIS // NAVIGATING</p><small>OPENING // ' + label.toUpperCase() + '</small>';
+      gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>COMMAND ACCEPTED</p><small>OPENING // ' + label.toUpperCase() + '</small>';
       document.body.append(gate);
-      const response = dest === "contact" ? "Yes sir. Opening your profile with contact links."
-        : dest === "project" ? "Yes sir. Opening " + label + "."
-        : "Yes sir. Opening " + label + ".";
+      let details = "";
+      if (dest === "stack") details = moduleSpeech.stack;
+      else if (dest === "about") details = moduleSpeech.about;
+      else if (dest === "projects") details = moduleSpeech.projects;
+      else if (dest === "contact") details = "Your email and profile links are in the identity panel.";
+      else if (dest === "project") details = target.data?.description || "The selected project is now open in the portfolio window.";
+      const response = "Command accepted. Opening " + label + ". " + details;
       window.setTimeout(() => {
         goTo(target);
         gate.classList.add("jump-exit");
@@ -1097,7 +1119,7 @@ if (!openEntry) {
       try { recognizer.start(); listening = true; }
       catch {
         greetOnStart = false;
-        sayWithDeck("Jarvis online. Say hey Jarvis, then tell me what to open. For example, open the IT spend and asset project, show me the tech stack, or open identity.");
+        sayWithDeck("Jarvis online and listening. Tell me which portfolio section or project to open.");
       }
     } else {
       sayWithDeck("Voice replies are on, but this browser does not support microphone commands.");
