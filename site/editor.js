@@ -969,80 +969,95 @@ if (!openEntry) {
   };
   if (SpeechRecognition) {
     recognizer = new SpeechRecognition();
-    recognizer.lang = "hi-IN";
+    recognizer.lang = "en-IN";
     recognizer.continuous = true;
     recognizer.interimResults = false;
     recognizer.maxAlternatives = 5;
+    let wakeArmed = false;
+    const normalizeVoice = (value) => value.toLowerCase()
+      .replace(/[^a-z0-9\\s]/g, " ")
+      .replace(/\\s+/g, " ")
+      .trim();
+    const findProject = (command) => {
+      const stop = new Set(["project", "projects", "section", "repo", "repository", "repositories", "open", "show", "display", "view", "please", "me", "my", "the", "a", "an", "and", "to", "for", "of", "with", "dashboard", "data"]);
+      const candidates = entries.filter(entry => entry.kind === "project").map(entry => {
+        const words = normalizeVoice([entry.id, entry.label, entry.data?.repo, entry.data?.title, entry.data?.description].filter(Boolean).join(" "))
+          .split(" ").filter(word => word.length > 2 && !stop.has(word));
+        const matched = [...new Set(words)].filter(word => command.includes(word));
+        return { entry, score: matched.length };
+      }).filter(candidate => candidate.score > 0).sort((a,b) => b.score - a.score);
+      if (!candidates.length) return null;
+      if (candidates.length > 1 && candidates[0].score === candidates[1].score) return null;
+      return candidates[0].entry;
+    };
+    const parseCommand = (raw) => {
+      let command = normalizeVoice(raw);
+      if (/\\bhey jarvis\\b/.test(command)) {
+        wakeArmed = true;
+        command = command.replace(/\\bhey jarvis\\b/g, " ").replace(/\\s+/g, " ").trim();
+      }
+      if (!command && wakeArmed) return { wakeOnly: true };
+      const stackOverflow = /\\bstack overflow\\b/.test(command);
+      const stackIntent = !stackOverflow && /\\b(tech stack|stack|skills|skill|technology|technical skills)\\b/.test(command);
+      if (stackIntent) return { target: chooseEntry("stack"), dest: "stack" };
+      if (/\\b(identity|profile|about|who am i)\\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\\b(home|start|top)\\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\\b(contact|email|reach me)\\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
+      const project = findProject(command);
+      if (project) return { target: project, dest: "project" };
+      if (/\\bstack overflow\\b/.test(command)) {
+        const survey = entries.find(entry => entry.id === "stack-overflow-developer-survey-dashboard");
+        if (survey) return { target: survey, dest: "project" };
+      }
+      if (/\\b(project|projects|archive|repository|repositories|work)\\b/.test(command)) {
+        return { target: chooseEntry("projects"), dest: "projects" };
+      }
+      return null;
+    };
     recognizer.onstart = () => {
       if (!voiceEnabled) return;
       voiceToggle.textContent = "LISTENING";
-      voiceToggle.setAttribute("aria-label", "Jarvis is listening for a Hindi or English command");
+      voiceToggle.setAttribute("aria-label", "Jarvis is listening for English commands");
       if (greetOnStart) {
         greetOnStart = false;
-        sayWithDeck("Ji sir. Main sun raha hoon. Aap boliye, identity kholo, project section kholo, stack kholo, ya kisi project ka naam bolo.");
+        sayWithDeck("Jarvis online. Say hey Jarvis, then tell me what to open. For example, open the IT spend and asset project, show me the tech stack, or open identity.");
       }
     };
     recognizer.onresult = (event) => {
       const result = event.results[event.results.length - 1];
       if (!result.isFinal) return;
       voiceToggle.textContent = "PROCESSING...";
-      const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9\u0900-\u097f\s]/g, " ").replace(/\s+/g, " ").trim();
-      const parseCommand = (raw) => {
-        const command = normalize(raw);
-        const has = (...terms) => terms.some(term => command.includes(term));
-        const projectNames = [
-          { id: "hotel-booking-demand-analysis", terms: ["hotel booking", "hotel", "booking", "होटल", "बुकिंग"] },
-          { id: "stack-overflow-developer-survey-dashboard", terms: ["stack overflow", "overflow", "स्टैक ओवरफ्लो", "ओवरफ्लो"] },
-          { id: "sales-and-customer-analytics-dashboard", terms: ["sales customer", "customer analytics", "सेल्स कस्टमर", "कस्टमर एनालिटिक्स"] },
-          { id: "it-spend-and-asset-utilization-dashboard", terms: ["it spend", "asset utilization", "आईटी स्पेंड", "एसेट"] },
-          { id: "superstore-sales-and-profit-insights", terms: ["superstore", "सुपरस्टोर"] },
-          { id: "business-intelligence-sales-dashboard", terms: ["business intelligence", "बिजनेस इंटेलिजेंस"] },
-        ];
-        const isStackOverflow = has("stack overflow", "overflow", "स्टैक ओवरफ्लो", "ओवरफ्लो");
-        const projectMatch = projectNames.find(item => item.terms.some(term => command.includes(term)));
-        if (isStackOverflow && projectMatch) {
-          return { target: entries.find(entry => entry.id === projectMatch.id), dest: "project" };
-        }
-        if (projectMatch && !(has("stack", "स्टैक") && !isStackOverflow)) {
-          return { target: entries.find(entry => entry.id === projectMatch.id), dest: "project" };
-        }
-        if (has("tech stack", "stack", "skills", "skill", "technology", "स्किल", "स्किल्स", "कौशल", "स्टैक", "टेक्निकल")) {
-          return { target: chooseEntry("stack"), dest: "stack" };
-        }
-        if (has("identity", "profile", "about", "who am i", "पहचान", "प्रोफाइल", "आइडेंटिटी")) {
-          return { target: chooseEntry("about"), dest: "about" };
-        }
-        if (has("home", "start", "top", "घर", "होम")) {
-          return { target: chooseEntry("about"), dest: "about" };
-        }
-        if (has("contact", "email", "reach me", "संपर्क", "ईमेल", "कॉन्टैक्ट")) {
-          return { target: chooseEntry("about"), dest: "contact" };
-        }
-        if (has("project", "projects", "repository", "repositories", "work", "प्रोजेक्ट", "परियोजना", "रिपॉजिटरी")) {
-          return { target: chooseEntry("projects"), dest: "projects" };
-        }
-        return null;
-      };
       const alternatives = Array.from(result, item => item.transcript);
-      const action = alternatives.map(parseCommand).find(item => item?.target);
-      if (!action) {
-        sayWithDeck("Ji sir, command samajh nahi aaya. Aap identity, skills, project section, contact, ya project ka naam bol sakte hain.");
+      const action = alternatives.map(parseCommand).find(item => item?.target || item?.wakeOnly);
+      if (action?.wakeOnly) {
+        sayWithDeck("Yes sir. What would you like me to open?");
+        return;
+      }
+      if (!action?.target) {
+        sayWithDeck("I didn't catch that. Try: open the IT spend and asset project, show me the tech stack, open identity, or show projects.");
         return;
       }
       const { target, dest } = action;
+      wakeArmed = false;
       const parent = entries.find(entry => entry.id === target.parent);
       const wheelEntry = parent || target;
       const index = items.findIndex(item => item.entry === wheelEntry);
       if (index >= 0) wheel.select(index);
-      goTo(target);
+      const label = dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
       window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest } }));
-      let response = dest === "contact" ? "Ji sir. Aapke contact links profile mein khol raha hoon."
-        : dest === "project" ? "Ji sir. " + target.label.replaceAll("-", " ") + " project khol raha hoon."
-        : dest === "projects" ? "Ji sir. Project section khol raha hoon."
-        : dest === "stack" ? "Ji sir. Tech stack khol raha hoon."
-        : dest === "about" ? "Ji sir. Identity section khol raha hoon."
-        : "Ji sir. Section khol raha hoon.";
-      sayWithDeck(response);
+      const gate = document.createElement("div");
+      gate.className = "hero-jump";
+      gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>JARVIS // NAVIGATING</p><small>OPENING // ' + label.toUpperCase() + '</small>';
+      document.body.append(gate);
+      const response = dest === "contact" ? "Yes sir. Opening your profile with contact links."
+        : dest === "project" ? "Yes sir. Opening " + label + "."
+        : "Yes sir. Opening " + label + ".";
+      window.setTimeout(() => {
+        goTo(target);
+        gate.classList.add("jump-exit");
+        window.setTimeout(() => gate.remove(), 550);
+        sayWithDeck(response);
+      }, reduced.matches ? 0 : 700);
     };
     recognizer.onerror = (event) => {
       if (event.error === "not-allowed" || event.error === "service-not-allowed") {
@@ -1050,13 +1065,13 @@ if (!openEntry) {
         listening = false;
         voiceToggle.setAttribute("aria-pressed", "false");
         voiceToggle.textContent = "MIC BLOCKED";
-      } else if (event.error === "language-not-supported" && recognizer.lang === "hi-IN") {
-        recognizer.lang = "en-IN";
-        voiceToggle.textContent = "ENGLISH VOICE";
+        voiceToggle.setAttribute("aria-label", "Microphone blocked. Allow microphone access for this site in browser settings.");
       } else if (event.error === "no-speech") {
         voiceToggle.textContent = "DIDN'T HEAR";
       } else if (event.error === "audio-capture") {
         voiceToggle.textContent = "MIC NOT FOUND";
+      } else if (event.error === "network") {
+        voiceToggle.textContent = "VOICE NETWORK ERROR";
       }
     };
     recognizer.onend = () => {
@@ -1082,10 +1097,10 @@ if (!openEntry) {
       try { recognizer.start(); listening = true; }
       catch {
         greetOnStart = false;
-        sayWithDeck("Ji sir. Main sun raha hoon. Aap boliye, identity kholo, project section kholo, stack kholo, ya kisi project ka naam bolo.");
+        sayWithDeck("Jarvis online. Say hey Jarvis, then tell me what to open. For example, open the IT spend and asset project, show me the tech stack, or open identity.");
       }
     } else {
-      sayWithDeck("Voice replies are on. This browser does not support microphone commands.");
+      sayWithDeck("Voice replies are on, but this browser does not support microphone commands.");
     }
   });
 
