@@ -1,0 +1,16 @@
+/* Jarvis command and scan interaction layer */
+.voice{position:relative;z-index:2;flex:none;padding:9px 12px;border:1px solid rgba(103,234,255,.52);background:rgba(5,13,24,.94);color:var(--cyan);font:600 8px var(--mono);letter-spacing:.1em;white-space:nowrap;box-shadow:0 0 13px rgba(103,234,255,.12);animation:voiceBlink 1.4s steps(2,end) infinite}
+.voice:hover,.voice:focus-visible{outline:1px solid var(--cyan);outline-offset:3px}
+.voice[aria-pressed="true"]{color:var(--green);border-color:rgba(121,255,180,.7);animation:none;box-shadow:0 0 15px rgba(121,255,180,.2)}
+@keyframes voiceBlink{50%{opacity:.58}}
+.scan-code{margin-top:9px;border:1px solid rgba(103,234,255,.18);background:rgba(4,10,21,.78);text-align:left;overflow:hidden}
+.scan-code-head{display:flex;justify-content:space-between;gap:8px;padding:6px 7px;border-bottom:1px solid rgba(103,234,255,.13);font-size:7px;letter-spacing:.1em;color:#69dff2}
+.scan-code-head b{font-weight:400;color:var(--green)}
+.scan-code pre{height:64px;overflow:hidden;margin:0;padding:6px 7px;color:#a7bad2;font:7px/1.5 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
+.scan-code[data-state="SCANNING"]{border-color:rgba(103,234,255,.65);box-shadow:0 0 18px rgba(35,212,255,.15)}
+.scan-code[data-state="SCANNING"] #scanState{animation:voiceBlink .65s steps(2,end) infinite}
+.bio:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(transparent 48%,rgba(103,234,255,.24) 50%,transparent 53%);background-size:100% 200%;animation:faceSweep 3.2s linear infinite;opacity:.65}
+.bio{position:relative;overflow:hidden}
+@keyframes faceSweep{from{background-position:0 -100%}to{background-position:0 200%}}
+@media(max-width:700px){.voice{padding:7px 8px;font-size:7px}.status{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){.voice,.scan-code-head b,.bio:after{animation:none!important}}
