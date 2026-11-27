@@ -986,7 +986,7 @@ if (!openEntry) {
       const result = event.results[event.results.length - 1];
       if (!result.isFinal) return;
       voiceToggle.textContent = "PROCESSING...";
-      const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9\\u0900-\\u097f\\s]/g, " ").replace(/\\s+/g, " ").trim();
+      const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9\u0900-\u097f\s]/g, " ").replace(/\s+/g, " ").trim();
       const parseCommand = (raw) => {
         const command = normalize(raw);
         const has = (...terms) => terms.some(term => command.includes(term));
@@ -1044,15 +1044,19 @@ if (!openEntry) {
         : "Ji sir. Section khol raha hoon.";
       sayWithDeck(response);
     };
- repository." : "Opening " + (dest || "profile") + ".";
-      sayWithDeck(response);
-    };
     recognizer.onerror = (event) => {
       if (event.error === "not-allowed" || event.error === "service-not-allowed") {
         voiceEnabled = false;
         listening = false;
         voiceToggle.setAttribute("aria-pressed", "false");
         voiceToggle.textContent = "MIC BLOCKED";
+      } else if (event.error === "language-not-supported" && recognizer.lang === "hi-IN") {
+        recognizer.lang = "en-IN";
+        voiceToggle.textContent = "ENGLISH VOICE";
+      } else if (event.error === "no-speech") {
+        voiceToggle.textContent = "DIDN'T HEAR";
+      } else if (event.error === "audio-capture") {
+        voiceToggle.textContent = "MIC NOT FOUND";
       }
     };
     recognizer.onend = () => {
