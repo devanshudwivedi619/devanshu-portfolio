@@ -940,7 +940,7 @@ if (!openEntry) {
     lastJarvisSpeechAt = Date.now();
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = preferredVoice?.lang || "en-IN";
-    utterance.rate = 0.88;
+    utterance.rate = 1.08;
     utterance.pitch = 0.7;
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
@@ -964,7 +964,7 @@ if (!openEntry) {
     refreshVoices();
     const utterance = new SpeechSynthesisUtterance("Welcome to the Devanshu Portfolio.");
     utterance.lang = preferredVoice?.lang || "en-IN";
-    utterance.rate = 0.88;
+    utterance.rate = 1.08;
     utterance.pitch = 0.7;
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
@@ -1199,7 +1199,7 @@ if (!openEntry) {
         gate.classList.add("jump-exit");
         window.setTimeout(() => gate.remove(), 550);
         sayWithDeck(response);
-      }, reduced.matches ? 0 : 700);
+      }, reduced.matches ? 0 : 140);
     };
     recognizer.onerror = (event) => {
       if (event.error === "not-allowed" || event.error === "service-not-allowed") {
