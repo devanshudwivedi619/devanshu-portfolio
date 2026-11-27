@@ -1003,9 +1003,9 @@ if (!openEntry) {
       }
       if (!command && wakeArmed) return { wakeOnly: true };
       const stackOverflow = /\bstack overflow\b/.test(command);
-      const stackIntent = !stackOverflow && /\b(tech stack|stack|skills|skill|technology|technical skills)\b/.test(command);
+      const stackIntent = !stackOverflow && /\b(tech stack|stack|skills|skill|technology|technical skills|excel|sql|power bi|python|pyspark|statistics|aws)\b/.test(command);
       if (stackIntent) return { target: chooseEntry("stack"), dest: "stack" };
-      if (/\b(identity|profile|about|who am i)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
+      if (/\b(identity|profile|about|background|education|who am i|who are you)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
       if (/\b(home|start|top)\b/.test(command)) return { target: chooseEntry("about"), dest: "about" };
       if (/\b(contact|email|reach me)\b/.test(command)) return { target: chooseEntry("about"), dest: "contact" };
       const project = findProject(command);
