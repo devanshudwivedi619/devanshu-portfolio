@@ -959,11 +959,12 @@ if (!openEntry) {
       sayWithDeck("Welcome, sir.", () => {
         clearTimeout(closeGuard);
         faceScanner.stop();
+        hideWakeSky();
       });
     },
     onStop() {
       faceScanActive = false;
-      if (jarvisAwake) showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND");
+      hideWakeSky();
     },
   });
   const speakWelcome = () => {
@@ -1129,6 +1130,11 @@ if (!openEntry) {
     else hide();
   };
 
+  const finishCommand = () => {
+    voiceToggle.textContent = jarvisAwake ? "AWAKE // LISTENING" : "ASLEEP // WAKE WORD";
+    hideWakeSky();
+  };
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognizer = null;
   let listening = false;
@@ -1249,8 +1255,11 @@ if (!openEntry) {
         voiceToggle.textContent = "AWAKE // LISTENING";
         voiceToggle.setAttribute("aria-label", "Jarvis is awake and listening for English commands");
         showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND");
+        if (!cleaned) {
+          sayWithDeck("Command accepted.", finishCommand);
+          return;
+        }
         sayWithDeck("Command accepted.");
-        if (!cleaned) return;
         routedAlternatives = [cleaned];
       } else if (!jarvisAwake || !result.isFinal) {
         return;
@@ -1273,7 +1282,7 @@ if (!openEntry) {
       if (thanksCommand) {
         voiceToggle.textContent = "AWAKE // LISTENING";
         showWakeSky("COMMAND COMPLETE", "THANK YOU ACKNOWLEDGED");
-        sayWithDeck("It's okay, sir.", () => showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND"));
+        sayWithDeck("It's okay, sir.", finishCommand);
         return;
       }
       voiceToggle.textContent = "PROCESSING...";
@@ -1281,7 +1290,7 @@ if (!openEntry) {
       const action = routedAlternatives.map(parseCommand).find(item => item?.target);
       if (!action?.target) {
         voiceToggle.textContent = "COMMAND NOT RECOGNIZED";
-        sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.", () => showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND"));
+        sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.", finishCommand);
         return;
       }
       const { target, dest, themeName } = action;
@@ -1317,7 +1326,7 @@ if (!openEntry) {
         gate.classList.add("jump-exit");
         window.setTimeout(() => gate.remove(), 550);
         if (dest === "face-scan") showWakeSky("FACE SCAN IN PROGRESS", "WAITING FOR FACE LANDMARKS");
-        else if (response) sayWithDeck(response, () => showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND"));
+        else if (response) sayWithDeck(response, finishCommand);
       }, reduced.matches ? 0 : 140);
     };
     recognizer.onerror = (event) => {
