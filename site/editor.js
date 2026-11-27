@@ -917,8 +917,7 @@ if (!openEntry) {
     voiceEngine.addEventListener?.("voiceschanged", refreshVoices);
   } else {
     voiceEnabled = false;
-    voiceToggle.textContent = "VOICE N/A";
-    voiceToggle.disabled = true;
+    voiceToggle.textContent = "JARVIS // OFF";
   }
   coreOrb.setAttribute("role", "button");
   coreOrb.setAttribute("tabindex", "0");
@@ -980,13 +979,17 @@ if (!openEntry) {
       const result = event.results[event.results.length - 1];
       if (!result.isFinal) return;
       const command = result[0].transcript.toLowerCase().replace(/[^a-z0-9 ]/g, " ").trim();
-      const project = entries.find((entry) => entry.kind === "project" && /\\b(open|kholo)\\b/.test(command)
+      const project = entries.find((entry) => entry.kind === "project" && /\b(open|kholo)\b/.test(command)
         && entry.id.toLowerCase().split(/[-_ ]+/).some((word) => word.length > 4 && command.includes(word)));
-      let dest = project ? "project" : /\\b(skill|skills|stack|technology|tech)\\b/.test(command) ? "stack"
-        : /\\b(project|projects|work|repository|repositories)\\b/.test(command) ? "projects"
-        : /\\b(contact|email|reach me)\\b/.test(command) ? "contact"
-        : /\\b(home|start|ghar|top)\\b/.test(command) ? "about"
-        : /\\b(profile|about|identity|who am i)\\b/.test(command) ? "about" : "";
+      let dest = project ? "project" : /\b(skill|skills|stack|technology|tech)\b/.test(command) ? "stack"
+        : /\b(project|projects|work|repository|repositories)\b/.test(command) ? "projects"
+        : /\b(contact|email|reach me)\b/.test(command) ? "contact"
+        : /\b(home|start|ghar|top)\b/.test(command) ? "about"
+        : /\b(profile|about|identity|who am i)\b/.test(command) ? "about" : "";
+      if (!dest) {
+        sayWithDeck("Try home, profile, skills, projects, contact, or open a project.");
+        return;
+      }
       const target = project || (dest === "contact" ? entries.find((entry) => entry.kind === "about") : chooseEntry(dest));
       if (!target) {
         sayWithDeck("Try home, profile, skills, projects, contact, or open a project.");
@@ -1030,8 +1033,7 @@ if (!openEntry) {
     sayWithDeck(SpeechRecognition
       ? "Voice interface online. Say profile, skills, projects, contact, or open a project."
       : "Voice replies are on. This browser does not support microphone commands.");
-    if (!SpeechRecognition) return;
-    try { recognizer.start(); listening = true; } catch {}
+    if (SpeechRecognition && !voiceEngine) startListening();
   });
 
   const chooseEntry = (dest) => {
