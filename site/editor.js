@@ -954,6 +954,7 @@ if (!openEntry) {
   const faceScanner = createFaceScanner({
     onSignal() {
       faceScanActive = false;
+      showWakeSky("SCAN COMPLETE // GREEN", "LANDMARK CHECK COMPLETE");
       let closeGuard = window.setTimeout(() => faceScanner.stop(), 2600);
       sayWithDeck("Welcome, sir.", () => {
         clearTimeout(closeGuard);
@@ -962,6 +963,7 @@ if (!openEntry) {
     },
     onStop() {
       faceScanActive = false;
+      if (jarvisAwake) showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND");
     },
   });
   const speakWelcome = () => {
@@ -1003,66 +1005,108 @@ if (!openEntry) {
       greeting();
     }
   });
-  const showWakeSky = () => {
+  const showWakeSky = (state = "AWAKE // LISTENING", command = "VOICE CHANNEL READY") => {
     let layer = document.querySelector(".jarvis-wake-sky");
     if (!layer) {
       const style = document.createElement("style");
       style.textContent = `
-        .jarvis-wake-sky{--ice:#67eaff;position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;background:radial-gradient(ellipse at 50% 28%,#133967 0,#07172c 34%,#02050c 76%);color:#c7f7ff;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}
-        .jarvis-wake-sky.is-waking{visibility:visible;animation:wakeScene 4.2s ease-out forwards}
-        .jarvis-wake-stars{position:absolute;inset:0;background-image:radial-gradient(#d7f8ff 1px,transparent 1.6px),radial-gradient(#7de9ff 1px,transparent 1.8px);background-size:97px 97px,163px 163px;background-position:9px 21px,63px 87px;opacity:.7;animation:wakeStars 4.2s ease-out}
-        .jarvis-wake-horizon{position:absolute;left:-15%;right:-15%;top:40%;height:60%;transform:perspective(420px) rotateX(58deg);transform-origin:top center;border-top:1px solid #59ddff88;background:repeating-linear-gradient(0deg,transparent 0 24px,#44dfff22 25px 26px),repeating-linear-gradient(90deg,transparent 0 54px,#44dfff18 55px 56px),radial-gradient(ellipse at 50% 0,#126b9577,transparent 66%);box-shadow:0 -8px 45px #21cfff35;animation:wakeOcean 4.2s ease-out}
-        .jarvis-wake-horizon:before,.jarvis-wake-horizon:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(177deg,transparent 0 38px,#79eaff22 39px 40px);transform:translateY(12px);animation:wakeWaves 2s linear infinite}
-        .jarvis-wake-horizon:after{opacity:.4;filter:blur(5px);transform:translateY(26px);animation-duration:3s}
-        .jarvis-wake-orbit{position:absolute;left:50%;top:44%;width:min(68vw,740px);aspect-ratio:1;border:1px solid #63eaff55;border-radius:50%;transform:translate(-50%,-50%) rotateX(68deg);box-shadow:0 0 35px #14dfff33,inset 0 0 45px #6554ff22;animation:wakeOrbit 18s linear infinite}
-        .jarvis-wake-orbit:before,.jarvis-wake-orbit:after{content:"";position:absolute;inset:13%;border:1px solid #73eaff48;border-radius:50%;transform:rotate(45deg) scaleX(.58)}
+        .jarvis-wake-sky{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .38s ease,visibility .38s ease;background:linear-gradient(180deg,rgba(2,8,17,.24),rgba(2,12,23,.10) 48%,rgba(1,8,16,.30));color:#c7f7ff;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}
+        .jarvis-wake-sky.is-awake{opacity:1;visibility:visible}
+        .jarvis-wake-stars{position:absolute;inset:0;background-image:radial-gradient(#d7f8ff 1px,transparent 1.6px),radial-gradient(#7de9ff 1px,transparent 1.8px);background-size:97px 97px,163px 163px;background-position:9px 21px,63px 87px;opacity:.58;animation:wakeStars 8s linear infinite}
+        .jarvis-wake-nebula{position:absolute;inset:-20%;background:radial-gradient(ellipse at 22% 25%,#185aff26,transparent 34%),radial-gradient(ellipse at 78% 36%,#00d9ff1c,transparent 34%),radial-gradient(ellipse at 53% 12%,#bf45ff17,transparent 29%);filter:blur(18px);animation:wakeNebula 7s ease-in-out infinite alternate}
+        .jarvis-wake-horizon{position:absolute;left:-15%;right:-15%;bottom:-12%;height:48%;transform:perspective(420px) rotateX(55deg);transform-origin:bottom center;border-top:1px solid #59ddff62;background:repeating-linear-gradient(0deg,transparent 0 22px,#44dfff19 23px 24px),repeating-linear-gradient(90deg,transparent 0 48px,#44dfff14 49px 50px),radial-gradient(ellipse at 50% 0,#126b9555,transparent 68%);box-shadow:0 -8px 38px #21cfff22;animation:wakeOcean 6s ease-in-out infinite alternate}
+        .jarvis-wake-horizon:before,.jarvis-wake-horizon:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(177deg,transparent 0 34px,#79eaff26 35px 36px);transform:translateY(12px);animation:wakeWaves 3s linear infinite}
+        .jarvis-wake-horizon:after{opacity:.42;filter:blur(5px);transform:translateY(26px);animation-duration:4.5s}
+        .jarvis-wake-orbit{position:absolute;left:50%;top:38%;width:min(62vw,660px);aspect-ratio:1;border:1px solid #63eaff38;border-radius:50%;transform:translate(-50%,-50%) rotateX(68deg);box-shadow:0 0 35px #14dfff22,inset 0 0 45px #6554ff14;animation:wakeOrbit 24s linear infinite}
+        .jarvis-wake-orbit:before,.jarvis-wake-orbit:after{content:"";position:absolute;inset:13%;border:1px solid #73eaff32;border-radius:50%;transform:rotate(45deg) scaleX(.58)}
         .jarvis-wake-orbit:after{inset:0;border-left-color:transparent;border-right-color:transparent;transform:rotate(-35deg)}
-        .jarvis-wake-nebula{position:absolute;inset:-15%;background:radial-gradient(ellipse at 22% 34%,#185aff38,transparent 38%),radial-gradient(ellipse at 78% 45%,#00d9ff2c,transparent 33%),radial-gradient(ellipse at 53% 24%,#bf45ff24,transparent 29%);filter:blur(22px);animation:wakeNebula 4.2s ease-out}
-        .jarvis-wake-panel{position:relative;z-index:3;width:min(760px,88vw);padding:clamp(18px,3vw,32px);border:1px solid #59eaff66;background:linear-gradient(145deg,#04111de8,#030914dd);box-shadow:0 0 50px #12dfff25,inset 0 0 34px #12dfff0c;backdrop-filter:blur(12px);text-align:center;animation:wakePanel .65s cubic-bezier(.2,.8,.2,1) both}
-        .jarvis-wake-head{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #4bd5f833;color:#70eaff;font-size:9px}
-        .jarvis-wake-head span:last-child{color:#75ffbd}
-        .jarvis-wake-title{margin:23px 0 8px;color:#e9fbff;font-size:clamp(20px,4vw,38px);letter-spacing:.22em;text-shadow:0 0 26px #22dfff66}
-        .jarvis-wake-sub{margin:0;color:#8eaebb;letter-spacing:.12em}
-        .jarvis-wake-term{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px;text-align:left}
-        .jarvis-wake-window{min-height:112px;padding:12px;border:1px solid #3dcce844;background:#030a12d9;box-shadow:inset 0 0 18px #0edfff0a}
-        .jarvis-wake-window b{display:flex;justify-content:space-between;margin-bottom:9px;color:#71eaff;font-size:8px;font-weight:500}
-        .jarvis-wake-window b i{color:#74ffb3;font-style:normal}
-        .jarvis-wake-window pre{margin:0;color:#b7cbd4;font:9px/1.7 ui-monospace,monospace;letter-spacing:.02em;white-space:pre-wrap}
-        .jarvis-wake-window pre span{color:#83ffc1}
-        .jarvis-wake-footer{margin-top:14px;color:#5d8390;font-size:8px;letter-spacing:.12em}
-        @keyframes wakeScene{0%{opacity:0}10%{opacity:1}78%{opacity:1}100%{opacity:0;visibility:hidden}}
-        @keyframes wakePanel{from{transform:translateY(14px) scale(.98);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+        .jarvis-holo-shell{position:relative;z-index:2;width:min(1040px,92vw);max-height:88vh;overflow:auto;padding:clamp(12px,2.1vw,24px);border:1px solid #59eaff4c;background:linear-gradient(145deg,rgba(4,17,29,.38),rgba(3,9,20,.28));box-shadow:0 0 48px #12dfff18,inset 0 0 32px #12dfff08;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);clip-path:polygon(0 0,97% 0,100% 8%,100% 100%,3% 100%,0 92%)}
+        .jarvis-holo-head{display:flex;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid #4bd5f82c;color:#70eaff;font-size:8px;letter-spacing:.15em}
+        .jarvis-holo-head span:last-child{color:#75ffbd}
+        .jarvis-holo-grid{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(240px,1.3fr) minmax(150px,.8fr);gap:12px;margin-top:12px}
+        .jarvis-holo-card{position:relative;min-width:0;padding:11px;border:1px solid #3dcce83b;background:rgba(2,11,20,.28);box-shadow:inset 0 0 18px #0edfff08}
+        .jarvis-holo-title{display:flex;justify-content:space-between;gap:6px;margin-bottom:9px;color:#78e9ff;font-size:7px;letter-spacing:.13em}
+        .jarvis-holo-title b{color:#72ffb3;font-weight:400}
+        .jarvis-face-holo{position:relative;display:grid;place-items:center;height:120px;overflow:hidden;border:1px solid #58eaff25;background:radial-gradient(ellipse,#0e566744,transparent 68%)}
+        .jarvis-face-holo svg{height:110px;max-width:100%;fill:none;stroke:#69e9ff;stroke-width:1.2;stroke-dasharray:3 5;filter:drop-shadow(0 0 5px #20dfff);animation:faceFloat 4s ease-in-out infinite}
+        .jarvis-face-sweep{position:absolute;left:8%;right:8%;height:1px;background:#80ffc1;box-shadow:0 0 10px #54ffbd;animation:faceSweep 2.5s ease-in-out infinite alternate}
+        .jarvis-face-label{position:absolute;bottom:5px;left:7px;color:#87ffbf;font-size:6px}
+        .jarvis-threat-row{display:flex;justify-content:space-between;gap:4px;margin-top:8px;color:#94aeb7;font-size:7px}
+        .jarvis-threat-row b{color:#79ffb9;font-weight:400}
+        .jarvis-command-core{display:flex;flex-direction:column;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,rgba(8,68,91,.25),rgba(2,11,20,.18) 70%)}
+        .jarvis-core-ring{display:grid;place-items:center;width:44px;height:44px;margin:2px auto 9px;border:1px solid #76edff8a;border-radius:50%;background:radial-gradient(circle,#bafaff 0 5%,#18bfe955 18%,rgba(0,14,29,.48) 70%);box-shadow:0 0 18px #2edfff6b,inset 0 0 12px #b2f8ff66;animation:corePulse 2s ease-in-out infinite}
+        .jarvis-core-ring:before{content:"";position:absolute;width:62px;height:22px;border:1px solid #66eaff50;border-radius:50%;transform:rotateX(66deg);animation:wakeOrbit 9s linear infinite}
+        .jarvis-holo-state{margin:2px 0;color:#ebfbff;font:700 clamp(12px,2vw,17px)/1.3 ui-monospace,monospace;letter-spacing:.15em;text-shadow:0 0 18px #22dfff5c}
+        .jarvis-holo-command{margin:6px 0 11px;color:#8fb2c1;font-size:8px;letter-spacing:.12em}
+        .jarvis-holo-code{min-height:78px;margin:0;padding:8px;border:1px solid #3dcce82b;background:rgba(0,5,11,.42);color:#b7d6df;text-align:left;font:8px/1.55 ui-monospace,monospace;letter-spacing:.02em;white-space:pre-wrap}
+        .jarvis-holo-code:after{content:"▌";color:#71f2ff;animation:deck-blink .8s steps(2,end) infinite}
+        .jarvis-holo-code span{color:#83ffc1}
+        .jarvis-data-bars{height:92px;display:flex;align-items:end;justify-content:space-around;gap:5px;padding:7px;border-bottom:1px solid #54eaff35;background:repeating-linear-gradient(0deg,transparent 0 20px,#55deff12 21px 22px)}
+        .jarvis-data-bars i{flex:1;max-width:12px;height:var(--bar);background:linear-gradient(0deg,#328eff55,#7affd9);box-shadow:0 0 9px #27eaff65;transform-origin:bottom;animation:dataPulse var(--speed,1.5s) ease-in-out infinite alternate}
+        .jarvis-sparkline{display:block;width:100%;height:34px;margin-top:10px;overflow:visible}
+        .jarvis-sparkline path{fill:none;stroke:#ff79d2;stroke-width:2;stroke-dasharray:150;stroke-dashoffset:150;filter:drop-shadow(0 0 5px #ff4fbe);animation:chartDraw 2.8s linear infinite}
+        .jarvis-ocean{position:relative;height:clamp(62px,10vh,100px);margin-top:10px;overflow:hidden;border:1px solid #58dfff28;background:linear-gradient(180deg,rgba(3,24,42,.10),rgba(0,45,72,.25) 55%,rgba(0,10,24,.34));}
+        .jarvis-ocean:before,.jarvis-ocean:after{content:"";position:absolute;inset:40% -15% -60%;border-top:1px solid #61eaff48;border-radius:50% 50% 0 0;background:repeating-linear-gradient(0deg,transparent 0 12px,#4ce2ff18 13px 14px);animation:oceanRipple 4s ease-in-out infinite alternate}
+        .jarvis-ocean:after{inset:48% -20% -70%;opacity:.5;animation-duration:6s}
+        .jarvis-ocean-label{position:absolute;top:7px;left:9px;z-index:2;color:#78eaff;font-size:7px;letter-spacing:.12em}
+        .jarvis-fish{position:absolute;top:38%;width:39px;height:19px;fill:#78ecff;filter:drop-shadow(0 0 5px #2bdfff);animation:fishSwim 11s linear infinite}
+        .jarvis-fish.fish-b{top:64%;width:27px;opacity:.68;animation-duration:15s;animation-delay:-6s}
+        .jarvis-fish.fish-c{top:48%;width:20px;opacity:.42;animation-duration:18s;animation-delay:-10s}
+        .jarvis-ocean-bubbles{position:absolute;right:17%;bottom:-14px;width:4px;height:4px;border-radius:50%;background:#82f7ff;box-shadow:-33px 8px 0 #82f7ff88,21px 14px 0 #82f7ff77,48px 10px 0 #82f7ff88;animation:bubbles 4s linear infinite}
+        .jarvis-holo-foot{display:flex;justify-content:space-between;gap:9px;margin-top:8px;color:#638696;font-size:6px;letter-spacing:.11em}
+        .jarvis-holo-foot b{color:#79ffb9;font-weight:400}
         @keyframes wakeOrbit{to{rotate:360deg}}
-        @keyframes wakeOcean{from{opacity:0;transform:perspective(420px) rotateX(58deg) translateY(45px)}to{opacity:1;transform:perspective(420px) rotateX(58deg) translateY(0)}}
-        @keyframes wakeWaves{to{background-position:0 80px}}
-        @keyframes wakeStars{from{transform:scale(1.15);opacity:0}to{transform:scale(1);opacity:.7}}
-        @keyframes wakeNebula{from{opacity:.2;filter:blur(35px)}to{opacity:1;filter:blur(22px)}}
-        @media(max-width:600px){.jarvis-wake-head{font-size:7px}.jarvis-wake-term{grid-template-columns:1fr}.jarvis-wake-window{min-height:76px}.jarvis-wake-window pre{font-size:8px}.jarvis-wake-panel{width:90vw}}
-        @media(prefers-reduced-motion:reduce){.jarvis-wake-sky.is-waking{animation:none;opacity:1;visibility:visible}.jarvis-wake-sky *{animation:none!important}}
+        @keyframes wakeStars{to{background-position:147px 101px,-100px 187px}}
+        @keyframes wakeOcean{from{transform:perspective(420px) rotateX(55deg) translateY(16px);opacity:.55}to{transform:perspective(420px) rotateX(55deg) translateY(0);opacity:1}}
+        @keyframes wakeWaves{to{background-position:0 75px}}
+        @keyframes wakeNebula{to{transform:scale(1.1);filter:blur(28px)}}
+        @keyframes faceFloat{50%{transform:translateY(-4px)}}
+        @keyframes faceSweep{to{top:88%}}
+        @keyframes corePulse{50%{transform:scale(1.12);filter:brightness(1.4)}}
+        @keyframes dataPulse{to{transform:scaleY(.62);opacity:.65}}
+        @keyframes chartDraw{0%{stroke-dashoffset:150}70%,100%{stroke-dashoffset:0}}
+        @keyframes oceanRipple{to{transform:translateX(35px);opacity:.5}}
+        @keyframes fishSwim{0%{transform:translateX(-10vw) scaleX(1)}49%{transform:translateX(100vw) scaleX(1)}50%{transform:translateX(100vw) scaleX(-1)}100%{transform:translateX(-10vw) scaleX(-1)}}
+        @keyframes bubbles{to{transform:translateY(-120px);opacity:0}}
+        @media(max-width:720px){.jarvis-wake-sky{align-items:start;overflow:auto;padding:8px 0}.jarvis-holo-shell{width:94vw;max-height:none}.jarvis-holo-grid{grid-template-columns:1fr 1fr}.jarvis-command-core{grid-column:1/-1;grid-row:1}.jarvis-holo-card{padding:8px}.jarvis-face-holo{height:90px}.jarvis-ocean{height:72px}.jarvis-holo-foot{font-size:5px}}
+        @media(max-width:420px){.jarvis-holo-grid{grid-template-columns:1fr}.jarvis-command-core{grid-column:auto;grid-row:auto}.jarvis-face-holo{height:78px}}
+        @media(prefers-reduced-motion:reduce){.jarvis-wake-sky *{animation:none!important;transition:none!important}}
       `;
       document.head.append(style);
       layer = document.createElement("div");
       layer.className = "jarvis-wake-sky";
       layer.setAttribute("aria-hidden", "true");
-      layer.innerHTML = '<div class="jarvis-wake-stars"></div><div class="jarvis-wake-nebula"></div><div class="jarvis-wake-orbit"></div><div class="jarvis-wake-horizon"></div><section class="jarvis-wake-panel"><header class="jarvis-wake-head"><span>DEVANSHU // SECURE PORTFOLIO CONSOLE</span><span>● SYSTEM ONLINE</span></header><h2 class="jarvis-wake-title">JARVIS // AWAKE</h2><p class="jarvis-wake-sub">OCEANIC HOLOGRAM FIELD · COMMAND CHANNEL READY</p><div class="jarvis-wake-term"><div class="jarvis-wake-window"><b><span>~/system/boot</span><i>READY</i></b><pre class="jarvis-wake-code" data-code="$ jarvis --wake&#10;loading voice link...&#10;rendering ocean field...&#10;assistant.status = &quot;online&quot;"></pre></div><div class="jarvis-wake-window"><b><span>~/portfolio/scan</span><i>LOCAL DEMO</i></b><pre class="jarvis-wake-code" data-code="$ scan --mode hologram&#10;tracking landmarks...&#10;signal: green / locked&#10;privacy: camera stays local"></pre></div></div><footer class="jarvis-wake-footer">SIMULATED TERMINAL DISPLAY · NO COMMANDS EXECUTED</footer></section>'
+      layer.innerHTML = '<div class="jarvis-wake-stars"></div><div class="jarvis-wake-nebula"></div><div class="jarvis-wake-orbit"></div><div class="jarvis-wake-horizon"></div><section class="jarvis-holo-shell"><header class="jarvis-holo-head"><span>DEVANSHU // CYBERSECURITY CONTROL</span><span>● <b id="wake-status">AWAKE // LISTENING</b></span></header><div class="jarvis-holo-grid"><article class="jarvis-holo-card"><div class="jarvis-holo-title"><span>THREAT SCAN / HOLOGRAM</span><b>LOCAL SIMULATION</b></div><div class="jarvis-face-holo"><svg viewBox="0 0 120 140" aria-hidden="true"><path d="M60 8C34 8 22 27 24 57l4 34 12 24 20 15 20-15 12-24 4-34C98 27 86 8 60 8Z"/><path d="M25 52q35-23 70 0M28 70q32-13 64 0M36 92q24 15 48 0M42 49q8-6 16 0M62 49q8-6 16 0M50 79q10 6 20 0"/></svg><i class="jarvis-face-sweep"></i><span class="jarvis-face-label">FACE TRACE // DEMO ONLY</span></div><div class="jarvis-threat-row"><span>PERIMETER</span><b>● SECURE</b></div><div class="jarvis-threat-row"><span>THREAT FEED</span><b>SIMULATED</b></div></article><article class="jarvis-holo-card jarvis-command-core"><div class="jarvis-core-ring"></div><div class="jarvis-holo-state" id="wake-state">AWAKE // LISTENING</div><p class="jarvis-holo-command" id="wake-command">VOICE CHANNEL READY</p><pre class="jarvis-holo-code" id="wake-code"></pre></article><article class="jarvis-holo-card"><div class="jarvis-holo-title"><span>DATA VISUALIZATION</span><b>SIMULATED</b></div><div class="jarvis-data-bars"><i style="--bar:42%;--speed:1.1s"></i><i style="--bar:78%;--speed:1.7s"></i><i style="--bar:56%;--speed:1.3s"></i><i style="--bar:91%;--speed:1.9s"></i><i style="--bar:64%;--speed:1.2s"></i><i style="--bar:73%;--speed:1.6s"></i><i style="--bar:48%;--speed:1.4s"></i></div><svg class="jarvis-sparkline" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true"><path d="M0 28 L20 21 L38 24 L57 10 L78 17 L96 7 L116 15 L136 4 L157 11 L180 2"/></svg><div class="jarvis-threat-row"><span>SIGNAL</span><b>STABLE / GREEN</b></div></article></div><div class="jarvis-ocean"><span class="jarvis-ocean-label">OCEANIC SENSOR FIELD // HOLOGRAM</span><svg class="jarvis-fish fish-a" viewBox="0 0 80 40" aria-hidden="true"><path d="M7 20Q26 1 51 20Q26 39 7 20M50 20l23-15-2 15 2 15Z"/><circle cx="23" cy="18" r="2" fill="#06121d"/></svg><svg class="jarvis-fish fish-b" viewBox="0 0 80 40" aria-hidden="true"><path d="M7 20Q26 1 51 20Q26 39 7 20M50 20l23-15-2 15 2 15Z"/><circle cx="23" cy="18" r="2" fill="#06121d"/></svg><svg class="jarvis-fish fish-c" viewBox="0 0 80 40" aria-hidden="true"><path d="M7 20Q26 1 51 20Q26 39 7 20M50 20l23-15-2 15 2 15Z"/><circle cx="23" cy="18" r="2" fill="#06121d"/></svg><i class="jarvis-ocean-bubbles"></i></div><footer class="jarvis-holo-foot"><span>SIMULATED PORTFOLIO VISUALS · NO DARK WEB ACCESS OR COMMANDS</span><b id="wake-footer">AWAITING COMMAND</b></footer></section>';
     }
-    layer.classList.remove("is-waking");
-    void layer.offsetWidth;
-    layer.classList.add("is-waking");
-    (layer._typeTimers || []).forEach(clearInterval);
-    layer._typeTimers = [];
-    layer.querySelectorAll(".jarvis-wake-code").forEach((node, index) => {
-      const text = node.dataset.code || "";
+    layer.classList.add("is-awake");
+    const status = layer.querySelector("#wake-status");
+    const stateNode = layer.querySelector("#wake-state");
+    const commandNode = layer.querySelector("#wake-command");
+    const footer = layer.querySelector("#wake-footer");
+    if (status) status.textContent = state;
+    if (stateNode) stateNode.textContent = state;
+    if (commandNode) commandNode.textContent = command;
+    if (footer) footer.textContent = state.includes("PROCESS") ? "COMMAND IN PROGRESS" : state.includes("COMPLETE") ? "ACTION COMPLETED" : "AWAITING COMMAND";
+    const codeNode = layer.querySelector("#wake-code");
+    if (codeNode) {
+      clearInterval(layer._codeTimer);
+      const lines = state.includes("PROCESS")
+        ? ["$ jarvis.execute('" + command.toLowerCase().replaceAll("'", "") + "')", "resolving portfolio destination...", "rendering interactive module...", "status = 'working'"]
+        : ["$ jarvis --listen", "voice.channel = 'english'", "security.monitor = 'simulated'", "await next_command()"];
+      const code = lines.join("\n");
       let cursor = 0;
-      node.textContent = "";
-      const timer = window.setInterval(() => {
-        node.textContent = text.slice(0, ++cursor);
-        if (cursor >= text.length) window.clearInterval(timer);
-      }, 20 + index * 6);
-      layer._typeTimers.push(timer);
-    });
-    clearTimeout(layer._wakeTimer);
-    layer._wakeTimer = setTimeout(() => layer.classList.remove("is-waking"), 4300);
+      codeNode.textContent = "";
+      layer._codeTimer = window.setInterval(() => {
+        codeNode.textContent = code.slice(0, ++cursor);
+        if (cursor >= code.length) clearInterval(layer._codeTimer);
+      }, 16);
+    }
+  };
+  const hideWakeSky = () => {
+    const layer = document.querySelector(".jarvis-wake-sky");
+    if (!layer) return;
+    clearInterval(layer._codeTimer);
+    layer.classList.remove("is-awake");
   };
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1156,6 +1200,7 @@ if (!openEntry) {
         lastJarvisSpeech = "";
         jarvisAwake = false;
         faceScanner.stop();
+        hideWakeSky();
         coreOrb.classList.remove("is-speaking");
         voiceToggle.textContent = "ASLEEP // WAKE WORD";
         voiceToggle.setAttribute("aria-label", "Jarvis is asleep and waiting for the Wake up Jarvis phrase");
@@ -1169,7 +1214,7 @@ if (!openEntry) {
         jarvisAwake = true;
         voiceToggle.textContent = "AWAKE // LISTENING";
         voiceToggle.setAttribute("aria-label", "Jarvis is awake and listening for English commands");
-        showWakeSky();
+        showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND");
         sayWithDeck("Command accepted.");
         if (!cleaned) return;
         routedAlternatives = [cleaned];
@@ -1193,14 +1238,16 @@ if (!openEntry) {
       const thanksCommand = routedAlternatives.some(text => /\bthank you jarvis\b|\bthanks jarvis\b|\bjarvis thank you\b|\bjarvis thanks\b/i.test(normalize(text)));
       if (thanksCommand) {
         voiceToggle.textContent = "AWAKE // LISTENING";
-        sayWithDeck("It's okay, sir.");
+        showWakeSky("COMMAND COMPLETE", "THANK YOU ACKNOWLEDGED");
+        sayWithDeck("It's okay, sir.", () => showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND"));
         return;
       }
       voiceToggle.textContent = "PROCESSING...";
+      showWakeSky("PROCESSING COMMAND", routedAlternatives[0] || "PORTFOLIO ACTION");
       const action = routedAlternatives.map(parseCommand).find(item => item?.target);
       if (!action?.target) {
         voiceToggle.textContent = "COMMAND NOT RECOGNIZED";
-        sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.");
+        sayWithDeck("I didn't understand that command. Try, open the IT spend and asset project, explain the tech stack, open identity, or show the projects.", () => showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND"));
         return;
       }
       const { target, dest, themeName } = action;
@@ -1210,6 +1257,7 @@ if (!openEntry) {
       if (index >= 0) wheel.select(index);
       const label = dest === "face-scan" ? "FACE SCAN" : dest === "stack" ? "TECH STACK" : dest === "about" ? "IDENTITY" : dest === "projects" ? "PROJECT ARCHIVE" : dest === "themes" ? "THEMES" : dest === "theme" ? themeName.toUpperCase() + " THEME" : dest === "contact" ? "CONTACT" : target.label.replaceAll("-", " ");
       voiceToggle.textContent = "COMMAND ACCEPTED";
+      showWakeSky("PROCESSING COMMAND", label);
       window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest === "theme" ? "themes" : dest === "face-scan" ? "face" : dest } }));
       const gate = document.createElement("div");
       gate.className = "hero-jump";
@@ -1234,7 +1282,8 @@ if (!openEntry) {
         } else goTo(target);
         gate.classList.add("jump-exit");
         window.setTimeout(() => gate.remove(), 550);
-        if (response) sayWithDeck(response);
+        if (dest === "face-scan") showWakeSky("FACE SCAN IN PROGRESS", "WAITING FOR FACE LANDMARKS");
+        else if (response) sayWithDeck(response, () => showWakeSky("AWAKE // LISTENING", "READY FOR A COMMAND"));
       }, reduced.matches ? 0 : 140);
     };
     recognizer.onerror = (event) => {
@@ -1264,6 +1313,7 @@ if (!openEntry) {
     if (!voiceEnabled) {
       jarvisAwake = false;
       faceScanner.stop();
+      hideWakeSky();
       stopListening();
       voiceToggle.textContent = "JARVIS // OFF";
       voiceEngine?.cancel();
