@@ -1012,10 +1012,10 @@ if (!openEntry) {
       style.textContent = `
         .jarvis-wake-sky{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .38s ease,visibility .38s ease;background:linear-gradient(180deg,rgba(2,8,17,.24),rgba(2,12,23,.10) 48%,rgba(1,8,16,.30));color:#c7f7ff;font:10px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.12em}
         .jarvis-wake-sky.is-awake{opacity:1;visibility:visible}
-        .jarvis-video-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34;filter:saturate(1.25) contrast(1.08);mix-blend-mode:screen;pointer-events:none}
-        .jarvis-wake-sky:after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(2,8,17,.25),rgba(2,12,23,.34) 48%,rgba(1,8,16,.4));pointer-events:none}
-        .jarvis-wake-stars,.jarvis-wake-nebula,.jarvis-wake-orbit,.jarvis-wake-horizon{z-index:1}
-        .jarvis-holo-shell{z-index:2}
+        .jarvis-video-backdrop{position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;opacity:.72;filter:saturate(1.45) contrast(1.12);mix-blend-mode:screen;pointer-events:none}
+        .jarvis-wake-sky:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(2,8,17,.12),rgba(2,12,23,.16) 48%,rgba(1,8,16,.2));pointer-events:none}
+        .jarvis-wake-stars,.jarvis-wake-nebula,.jarvis-wake-orbit,.jarvis-wake-horizon{z-index:2}
+        .jarvis-holo-shell{z-index:3}
         .jarvis-wake-stars{position:absolute;inset:0;background-image:radial-gradient(#d7f8ff 1px,transparent 1.6px),radial-gradient(#7de9ff 1px,transparent 1.8px);background-size:97px 97px,163px 163px;background-position:9px 21px,63px 87px;opacity:.58;animation:wakeStars 8s linear infinite}
         .jarvis-wake-nebula{position:absolute;inset:-20%;background:radial-gradient(ellipse at 22% 25%,#185aff26,transparent 34%),radial-gradient(ellipse at 78% 36%,#00d9ff1c,transparent 34%),radial-gradient(ellipse at 53% 12%,#bf45ff17,transparent 29%);filter:blur(18px);animation:wakeNebula 7s ease-in-out infinite alternate}
         .jarvis-wake-horizon{position:absolute;left:-15%;right:-15%;bottom:-12%;height:48%;transform:perspective(420px) rotateX(55deg);transform-origin:bottom center;border-top:1px solid #59ddff62;background:repeating-linear-gradient(0deg,transparent 0 22px,#44dfff19 23px 24px),repeating-linear-gradient(90deg,transparent 0 48px,#44dfff14 49px 50px),radial-gradient(ellipse at 50% 0,#126b9555,transparent 68%);box-shadow:0 -8px 38px #21cfff22;animation:wakeOcean 6s ease-in-out infinite alternate}
