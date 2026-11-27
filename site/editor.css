@@ -2064,3 +2064,38 @@ body{--margin:22px;--wide:1680px;--desk-h:90px;--bar-h:52px;--eye-w:clamp(170px,
 @media(max-width:900px){.stage{width:calc(100vw - 20px);grid-template-rows:52px minmax(640px,auto) 52px 50px 12px}.editor{grid-template-columns:190px minmax(0,1fr)}.j-mission{width:calc(100vw - 30px);bottom:12px;min-height:220px;padding:12px}.j-mission-card{min-height:88px}.j-orbit{left:70%;width:55vw}.j-face{opacity:.38}}
 @media(max-width:560px){body{--eye-w:0px}.stage{width:calc(100vw - 12px);grid-template-rows:48px minmax(700px,auto) 46px 35px 10px}.editor{grid-template-columns:112px minmax(0,1fr)}.wheel-item{width:108px;height:76px}.j-mission{bottom:8px;min-height:194px}.j-mission-title{margin:8px 0}.j-mission-cards{gap:6px}.j-mission-card{min-height:76px;padding:6px 3px}.j-mission-card b{font-size:9px}.j-mission-card small{font-size:7px}.j-core{width:25px;height:25px}.j-mission-foot{font-size:7px}.j-voice{right:10px;bottom:208px;padding:7px;font-size:8px}.jf2{right:1vw}.jf3{display:none}.j-bot{width:36px}}
 @media(prefers-reduced-motion:reduce){.jarvis-hud *,.j-mission-card{animation:none!important;transition:none!important}}
+
+/* Keep voice control easy to find across screens; motion stops for reduced-motion users. */
+.deck-voice-toggle {
+  position: fixed;
+  z-index: 40;
+  left: 24px;
+  bottom: 24px;
+  padding: 11px 16px;
+  border: 1px solid rgba(91,220,245,.7);
+  border-radius: 3px;
+  background: rgba(5,18,29,.96);
+  color: #a9f4ff;
+  box-shadow: 0 0 18px rgba(0,208,255,.28);
+  font: 600 10px ui-monospace,monospace;
+  letter-spacing: .16em;
+  cursor: pointer;
+  animation: voice-control-blink 1.35s steps(2,end) infinite;
+}
+.deck-voice-toggle[aria-pressed="true"] {
+  color: #9dffbf;
+  border-color: rgba(100,255,150,.75);
+  animation: none;
+  box-shadow: 0 0 18px rgba(75,255,135,.25);
+}
+.deck-voice-toggle:hover,.deck-voice-toggle:focus-visible {
+  outline: 2px solid #b9faff;
+  outline-offset: 3px;
+}
+@keyframes voice-control-blink { 50% { opacity: .58; } }
+@media(max-width:700px) {
+  .deck-voice-toggle { left: 12px; bottom: 12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .deck-voice-toggle { animation: none; }
+}
