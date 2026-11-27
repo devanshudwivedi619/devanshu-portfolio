@@ -1975,8 +1975,8 @@ body::after {
 .deck-title b {color:#e8fbff;text-shadow:0 0 15px rgba(65,216,255,.7)}
 .hero-orbits {height:75px;position:relative;display:grid;place-items:center;perspective:500px}
 .orbit {position:absolute;width:76px;height:30px;border:1px solid rgba(67,226,255,.5);border-radius:50%;box-shadow:0 0 13px rgba(0,207,255,.12)}
-.orbit-one {transform:rotateX(67deg) rotateZ(-25deg);animation:orbit-spin 8s linear infinite}
-.orbit-two {width:52px;height:52px;border-color:rgba(104,139,255,.5);transform:rotateX(70deg) rotateZ(35deg);animation:orbit-spin 6s linear infinite reverse}
+.orbit-one {transform:rotateX(67deg) rotateZ(-25deg);animation:orbit-spin 20s linear infinite}
+.orbit-two {width:52px;height:52px;border-color:rgba(104,139,255,.5);transform:rotateX(70deg) rotateZ(35deg);animation:orbit-spin 16s linear infinite reverse}
 .hero-core {width:31px;height:31px;border:1px solid rgba(113,237,255,.85);border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#b9faff 0 8%,#18bfe9 18%,rgba(0,99,164,.45) 43%,rgba(0,14,29,.8) 70%);box-shadow:0 0 11px #2edfff,0 0 32px rgba(0,195,255,.5),inset 0 0 12px #b2f8ff;animation:core-breathe 2.8s ease-in-out infinite}
 .hero-core small {font:7px ui-monospace,monospace;color:#eaffff;text-shadow:0 0 6px #00dfff}
 .orbit-dot {position:absolute;width:4px;height:4px;border-radius:50%;background:#aaf8ff;box-shadow:0 0 9px 3px #00bce9}
@@ -1999,8 +1999,8 @@ body::after {
 .deck-foot b {color:#7ceaff;font-size:13px}
 .hero-jump {position:fixed;z-index:99999;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;background:radial-gradient(circle at center,rgba(0,133,180,.22),rgba(1,5,14,.97) 56%);color:#c9faff;font-family:ui-monospace,monospace;letter-spacing:.2em;animation:jump-appear .35s ease-out}
 .jump-ring {position:absolute;width:min(62vw,460px);aspect-ratio:1;border-radius:50%;border:1px solid rgba(91,232,255,.65);box-shadow:0 0 25px rgba(0,200,255,.25),inset 0 0 30px rgba(0,200,255,.15)}
-.jump-ring-a{animation:jump-rotate 1.8s linear infinite;border-style:dashed}.jump-ring-b{width:min(43vw,320px);border-color:rgba(239,89,176,.5);animation:jump-rotate 2.4s linear infinite reverse}
-.jump-reactor{width:62px;height:62px;border-radius:50%;border:2px solid #8af4ff;background:radial-gradient(circle,#fff 0 5%,#48e9ff 18%,#0579ad 38%,transparent 70%);box-shadow:0 0 24px #00dfff,0 0 80px rgba(0,185,255,.55);animation:core-breathe .8s infinite}
+.jump-ring-a{animation:jump-rotate 6s linear infinite;border-style:dashed}.jump-ring-b{width:min(43vw,320px);border-color:rgba(239,89,176,.5);animation:jump-rotate 8s linear infinite reverse}
+.jump-reactor{width:62px;height:62px;border-radius:50%;border:2px solid #8af4ff;background:radial-gradient(circle,#fff 0 5%,#48e9ff 18%,#0579ad 38%,transparent 70%);box-shadow:0 0 24px #00dfff,0 0 80px rgba(0,185,255,.55);animation:core-breathe 3s infinite}
 .hero-jump p{margin:12px 0 0;font-size:11px;text-shadow:0 0 12px #00cfff}.hero-jump small{font-size:9px;color:rgba(190,238,247,.6)}
 .jump-exit{animation:jump-exit .5s forwards}
 @keyframes orbit-spin{to{rotate:360deg}}@keyframes core-breathe{50%{transform:scale(1.1);filter:brightness(1.4)}}@keyframes deck-blink{50%{opacity:.3}}@keyframes jump-rotate{to{transform:rotate(360deg)}}@keyframes jump-appear{from{opacity:0}to{opacity:1}}@keyframes jump-exit{to{opacity:0;transform:scale(1.08)}}
