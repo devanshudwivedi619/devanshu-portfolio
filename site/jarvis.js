@@ -10,6 +10,7 @@ const codeSamples={
  about:"profile = operator.scan()\nidentity.match(profile)\nstatus = 'VERIFIED'",
  projects:"repo = github.archive()\nprojects.filter('analytics')\nselected = repo.open()",
  stack:"skills = ['Excel','SQL','Power BI']\nlearning = ['Python','Statistics']\nstack.render()",
+ face:"landmarks = ['eyes','nose','cheeks']\ntracking = 'ON DEVICE'\nsignal = 'GREEN / LOCKED',
  contact:"links = ['email','github','linkedin']\ncontact.route('public')",
  home:"import portfolio.system as jarvis\nscanner.initialize(mode='demo')\noperator.link(status='online')"
 };
