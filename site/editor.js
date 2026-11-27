@@ -900,10 +900,10 @@ if (!openEntry) {
   const voiceToggle = document.createElement("button");
   voiceToggle.className = "deck-voice-toggle";
   voiceToggle.type = "button";
-  voiceToggle.textContent = "VOICE OFF";
+  voiceToggle.textContent = "JARVIS // OFF";
   voiceToggle.setAttribute("aria-pressed", "false");
-  voiceToggle.setAttribute("aria-label", "Turn portfolio voice on");
-  document.body.append(voiceToggle);
+  voiceToggle.setAttribute("aria-label", "Turn on Jarvis voice commands");
+  document.querySelector(".switch")?.append(voiceToggle);
   const coreOrb = deck.querySelector(".hero-core");
   const refreshVoices = () => {
     voiceList = voiceEngine ? voiceEngine.getVoices() : [];
@@ -925,6 +925,7 @@ if (!openEntry) {
   coreOrb.setAttribute("aria-label", "Activate the portfolio voice assistant");
   const sayWithDeck = (message) => {
     if (!voiceEnabled || !voiceEngine) return;
+    stopListening();
     voiceEngine.cancel();
     refreshVoices();
     const utterance = new SpeechSynthesisUtterance(message);
@@ -933,8 +934,8 @@ if (!openEntry) {
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
     utterance.onstart = () => coreOrb.classList.add("is-speaking");
-    utterance.onend = () => coreOrb.classList.remove("is-speaking");
-    utterance.onerror = () => coreOrb.classList.remove("is-speaking");
+    utterance.onend = () => { coreOrb.classList.remove("is-speaking"); startListening(); };
+    utterance.onerror = () => { coreOrb.classList.remove("is-speaking"); startListening(); };
     voiceEngine.speak(utterance);
   };
   const moduleSpeech = {
@@ -950,15 +951,87 @@ if (!openEntry) {
       greeting();
     }
   });
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognizer = null;
+  let listening = false;
+  let restartTimer = 0;
+  const startListening = () => {
+    if (!voiceEnabled || !recognizer || listening || voiceEngine?.speaking) return;
+    try { recognizer.start(); listening = true; } catch {}
+  };
+  const stopListening = () => {
+    clearTimeout(restartTimer);
+    if (!recognizer || !listening) return;
+    try { recognizer.stop(); } catch {}
+    listening = false;
+  };
+  if (SpeechRecognition) {
+    recognizer = new SpeechRecognition();
+    recognizer.lang = "en-IN";
+    recognizer.continuous = true;
+    recognizer.interimResults = false;
+    recognizer.onstart = () => {
+      if (voiceEnabled) {
+        voiceToggle.textContent = "LISTENING";
+        voiceToggle.setAttribute("aria-label", "Jarvis is listening for a command");
+      }
+    };
+    recognizer.onresult = (event) => {
+      const result = event.results[event.results.length - 1];
+      if (!result.isFinal) return;
+      const command = result[0].transcript.toLowerCase().replace(/[^a-z0-9 ]/g, " ").trim();
+      const project = entries.find((entry) => entry.kind === "project" && /\\b(open|kholo)\\b/.test(command)
+        && entry.id.toLowerCase().split(/[-_ ]+/).some((word) => word.length > 4 && command.includes(word)));
+      let dest = project ? "project" : /\\b(skill|skills|stack|technology|tech)\\b/.test(command) ? "stack"
+        : /\\b(project|projects|work|repository|repositories)\\b/.test(command) ? "projects"
+        : /\\b(contact|email|reach me)\\b/.test(command) ? "contact"
+        : /\\b(home|start|ghar|top)\\b/.test(command) ? "about"
+        : /\\b(profile|about|identity|who am i)\\b/.test(command) ? "about" : "";
+      const target = project || (dest === "contact" ? entries.find((entry) => entry.kind === "about") : chooseEntry(dest));
+      if (!target) {
+        sayWithDeck("Try home, profile, skills, projects, contact, or open a project.");
+        return;
+      }
+      const parent = entries.find((entry) => entry.id === target.parent);
+      const wheelEntry = parent || target;
+      const index = items.findIndex((item) => item.entry === wheelEntry);
+      if (index >= 0) wheel.select(index);
+      goTo(target);
+      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: project ? "projects" : dest || "about" } }));
+      const response = dest === "contact" ? "Contact links are in your profile." : project ? "Selected " + target.label + ". Use the project panel to open its repository." : "Opening " + (dest || "profile") + ".";
+      sayWithDeck(response);
+    };
+    recognizer.onerror = (event) => {
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        voiceEnabled = false;
+        listening = false;
+        voiceToggle.setAttribute("aria-pressed", "false");
+        voiceToggle.textContent = "MIC BLOCKED";
+      }
+    };
+    recognizer.onend = () => {
+      listening = false;
+      if (voiceEnabled && !voiceEngine?.speaking) restartTimer = window.setTimeout(startListening, 350);
+    };
+  }
   voiceToggle.addEventListener("click", () => {
     voiceEnabled = !voiceEnabled;
-    voiceToggle.textContent = voiceEnabled ? "VOICE ON" : "VOICE OFF";
     voiceToggle.setAttribute("aria-pressed", String(voiceEnabled));
-    voiceToggle.setAttribute("aria-label", voiceEnabled ? "Turn portfolio voice off" : "Turn portfolio voice on");
+    voiceToggle.setAttribute("aria-label", voiceEnabled ? "Turn Jarvis voice commands off" : "Turn Jarvis voice commands on");
     if (!voiceEnabled) {
+      stopListening();
+      voiceToggle.textContent = "JARVIS // OFF";
       voiceEngine?.cancel();
       coreOrb.classList.remove("is-speaking");
+      return;
     }
+    voiceToggle.textContent = SpeechRecognition ? "JARVIS // ON" : "VOICE ONLY";
+    window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: "about" } }));
+    sayWithDeck(SpeechRecognition
+      ? "Voice interface online. Say profile, skills, projects, contact, or open a project."
+      : "Voice replies are on. This browser does not support microphone commands.");
+    if (!SpeechRecognition) return;
+    try { recognizer.start(); listening = true; } catch {}
   });
 
   const chooseEntry = (dest) => {
@@ -973,6 +1046,7 @@ if (!openEntry) {
       const target = chooseEntry(dest);
       if (!target) return;
       sayWithDeck(moduleSpeech[dest] || "Mission selected. Initiating navigation.");
+      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest } }));
       const gate = document.createElement("div");
       gate.className = "hero-jump";
       gate.innerHTML = '<div class="jump-ring jump-ring-a"></div><div class="jump-ring jump-ring-b"></div><div class="jump-reactor"></div><p>INITIATING QUANTUM TRANSIT</p><small>DESTINATION LOCKED // ' + button.querySelector("b").textContent + '</small>';
