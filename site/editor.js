@@ -907,7 +907,8 @@ if (!openEntry) {
   const coreOrb = deck.querySelector(".hero-core");
   const refreshVoices = () => {
     voiceList = voiceEngine ? voiceEngine.getVoices() : [];
-    preferredVoice = voiceList.find(v => /^en-IN$/i.test(v.lang))
+    preferredVoice = voiceList.find(v => /david|ryan|daniel|arthur|male/i.test(v.name) && /^en/i.test(v.lang))
+      || voiceList.find(v => /^en-IN$/i.test(v.lang))
       || voiceList.find(v => /^en-GB$/i.test(v.lang))
       || voiceList.find(v => /^en-US$/i.test(v.lang))
       || voiceList.find(v => /^en/i.test(v.lang)) || null;
@@ -928,8 +929,9 @@ if (!openEntry) {
     voiceEngine.cancel();
     refreshVoices();
     const utterance = new SpeechSynthesisUtterance(message);
-    utterance.rate = 0.9;
-    utterance.pitch = 0.78;
+    utterance.lang = preferredVoice?.lang || "en-IN";
+    utterance.rate = 0.88;
+    utterance.pitch = 0.7;
     utterance.volume = 1;
     if (preferredVoice) utterance.voice = preferredVoice;
     utterance.onstart = () => coreOrb.classList.add("is-speaking");
@@ -967,45 +969,82 @@ if (!openEntry) {
   };
   if (SpeechRecognition) {
     recognizer = new SpeechRecognition();
-    recognizer.lang = "en-IN";
+    recognizer.lang = "hi-IN";
     recognizer.continuous = true;
     recognizer.interimResults = false;
+    recognizer.maxAlternatives = 5;
     recognizer.onstart = () => {
       if (!voiceEnabled) return;
       voiceToggle.textContent = "LISTENING";
-      voiceToggle.setAttribute("aria-label", "Jarvis is listening for a command");
+      voiceToggle.setAttribute("aria-label", "Jarvis is listening for a Hindi or English command");
       if (greetOnStart) {
         greetOnStart = false;
-        sayWithDeck("Voice interface online. Say profile, skills, projects, contact, or open a project.");
+        sayWithDeck("Ji sir. Main sun raha hoon. Aap boliye, identity kholo, project section kholo, stack kholo, ya kisi project ka naam bolo.");
       }
     };
     recognizer.onresult = (event) => {
       const result = event.results[event.results.length - 1];
       if (!result.isFinal) return;
-      const command = result[0].transcript.toLowerCase().replace(/[^a-z0-9 ]/g, " ").trim();
-      const project = entries.find((entry) => entry.kind === "project" && /\b(open|kholo)\b/.test(command)
-        && entry.id.toLowerCase().split(/[-_ ]+/).some((word) => word.length > 4 && command.includes(word)));
-      let dest = project ? "project" : /\b(skill|skills|stack|technology|tech)\b/.test(command) ? "stack"
-        : /\b(project|projects|work|repository|repositories)\b/.test(command) ? "projects"
-        : /\b(contact|email|reach me)\b/.test(command) ? "contact"
-        : /\b(home|start|ghar|top)\b/.test(command) ? "about"
-        : /\b(profile|about|identity|who am i)\b/.test(command) ? "about" : "";
-      if (!dest) {
-        sayWithDeck("Try home, profile, skills, projects, contact, or open a project.");
+      voiceToggle.textContent = "PROCESSING...";
+      const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9\\u0900-\\u097f\\s]/g, " ").replace(/\\s+/g, " ").trim();
+      const parseCommand = (raw) => {
+        const command = normalize(raw);
+        const has = (...terms) => terms.some(term => command.includes(term));
+        const projectNames = [
+          { id: "hotel-booking-demand-analysis", terms: ["hotel booking", "hotel", "booking", "होटल", "बुकिंग"] },
+          { id: "stack-overflow-developer-survey-dashboard", terms: ["stack overflow", "overflow", "स्टैक ओवरफ्लो", "ओवरफ्लो"] },
+          { id: "sales-and-customer-analytics-dashboard", terms: ["sales customer", "customer analytics", "सेल्स कस्टमर", "कस्टमर एनालिटिक्स"] },
+          { id: "it-spend-and-asset-utilization-dashboard", terms: ["it spend", "asset utilization", "आईटी स्पेंड", "एसेट"] },
+          { id: "superstore-sales-and-profit-insights", terms: ["superstore", "सुपरस्टोर"] },
+          { id: "business-intelligence-sales-dashboard", terms: ["business intelligence", "बिजनेस इंटेलिजेंस"] },
+        ];
+        const isStackOverflow = has("stack overflow", "overflow", "स्टैक ओवरफ्लो", "ओवरफ्लो");
+        const projectMatch = projectNames.find(item => item.terms.some(term => command.includes(term)));
+        if (isStackOverflow && projectMatch) {
+          return { target: entries.find(entry => entry.id === projectMatch.id), dest: "project" };
+        }
+        if (projectMatch && !(has("stack", "स्टैक") && !isStackOverflow)) {
+          return { target: entries.find(entry => entry.id === projectMatch.id), dest: "project" };
+        }
+        if (has("tech stack", "stack", "skills", "skill", "technology", "स्किल", "स्किल्स", "कौशल", "स्टैक", "टेक्निकल")) {
+          return { target: chooseEntry("stack"), dest: "stack" };
+        }
+        if (has("identity", "profile", "about", "who am i", "पहचान", "प्रोफाइल", "आइडेंटिटी")) {
+          return { target: chooseEntry("about"), dest: "about" };
+        }
+        if (has("home", "start", "top", "घर", "होम")) {
+          return { target: chooseEntry("about"), dest: "about" };
+        }
+        if (has("contact", "email", "reach me", "संपर्क", "ईमेल", "कॉन्टैक्ट")) {
+          return { target: chooseEntry("about"), dest: "contact" };
+        }
+        if (has("project", "projects", "repository", "repositories", "work", "प्रोजेक्ट", "परियोजना", "रिपॉजिटरी")) {
+          return { target: chooseEntry("projects"), dest: "projects" };
+        }
+        return null;
+      };
+      const alternatives = Array.from(result, item => item.transcript);
+      const action = alternatives.map(parseCommand).find(item => item?.target);
+      if (!action) {
+        sayWithDeck("Ji sir, command samajh nahi aaya. Aap identity, skills, project section, contact, ya project ka naam bol sakte hain.");
         return;
       }
-      const target = project || (dest === "contact" ? entries.find((entry) => entry.kind === "about") : chooseEntry(dest));
-      if (!target) {
-        sayWithDeck("Try home, profile, skills, projects, contact, or open a project.");
-        return;
-      }
-      const parent = entries.find((entry) => entry.id === target.parent);
+      const { target, dest } = action;
+      const parent = entries.find(entry => entry.id === target.parent);
       const wheelEntry = parent || target;
-      const index = items.findIndex((item) => item.entry === wheelEntry);
+      const index = items.findIndex(item => item.entry === wheelEntry);
       if (index >= 0) wheel.select(index);
       goTo(target);
-      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: project ? "projects" : dest || "about" } }));
-      const response = dest === "contact" ? "Contact links are in your profile." : project ? "Selected " + target.label + ". Use the project panel to open its repository." : "Opening " + (dest || "profile") + ".";
+      window.dispatchEvent(new CustomEvent("portfolio:scan", { detail: { mode: dest === "project" ? "projects" : dest } }));
+      let response = dest === "contact" ? "Ji sir. Aapke contact links profile mein khol raha hoon."
+        : dest === "project" ? "Ji sir. " + target.label.replaceAll("-", " ") + " project khol raha hoon."
+        : dest === "projects" ? "Ji sir. Project section khol raha hoon."
+        : dest === "stack" ? "Ji sir. Tech stack khol raha hoon."
+        : dest === "about" ? "Ji sir. Identity section khol raha hoon."
+        : "Ji sir. Section khol raha hoon.";
+      sayWithDeck(response);
+    };
+ repository." : "Opening " + (dest || "profile") + ".";
       sayWithDeck(response);
     };
     recognizer.onerror = (event) => {
@@ -1039,7 +1078,7 @@ if (!openEntry) {
       try { recognizer.start(); listening = true; }
       catch {
         greetOnStart = false;
-        sayWithDeck("Voice interface online. Say profile, skills, projects, contact, or open a project.");
+        sayWithDeck("Ji sir. Main sun raha hoon. Aap boliye, identity kholo, project section kholo, stack kholo, ya kisi project ka naam bolo.");
       }
     } else {
       sayWithDeck("Voice replies are on. This browser does not support microphone commands.");
